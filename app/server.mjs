@@ -457,7 +457,8 @@ const server = createServer(async (req, res) => {
     if (on) {
       timer = setInterval(async () => {
         try {
-          await runPs('外部哨兵脚本.ps1', ['-Force'])
+          // 不带 -Force：让它自己的沉默门槛、概率、每日上限照样生效
+          await runPs('外部哨兵脚本.ps1', [])
           lastTimerRun = new Date().toISOString()
         } catch (e) {
           lastTimerRun = 'ERR ' + e.message
