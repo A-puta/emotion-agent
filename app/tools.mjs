@@ -28,6 +28,17 @@ const runPsCmd = (cmd) =>
     child.on('error', (e) => resolve('ERR ' + e.message))
   })
 
+// 启动方式：能查到 AUMID 的走 shell:AppsFolder，其余走绝对路径或 PATH
+const APP_LAUNCH = {
+  qq: { aumid: 'QQ', proc: 'QQ' },
+  wechat: { exe: 'C:\\Program Files\\Tencent\\Weixin\\Weixin.exe', proc: 'Weixin' },
+  edge: { exe: 'msedge.exe', proc: 'msedge' },
+  notepad: { exe: 'notepad.exe', proc: 'Notepad' },
+  explorer: { exe: 'explorer.exe', proc: 'explorer' },
+  calc: { exe: 'calc.exe', proc: 'CalculatorApp' },
+  vscode: { exe: 'Code.exe', proc: 'Code' },
+}
+
 const APP_MAP = {
   qq: 'qq.exe',
   wechat: 'WeChat.exe',
@@ -147,14 +158,19 @@ export async function runTool(name, args, { scripts, state, mode }) {
     }
     case 'open_app': {
       const key = String(args?.app || '').toLowerCase()
-      const exe = APP_MAP[key]
-      if (!exe) return { error: '不在白名单里' }
-      try {
-        const child = spawn('cmd.exe', ['/c', 'start', '', exe], { windowsHide: true, detached: true })
-        child.unref()
-        return { ok: true, launched: key }
-      } catch (e) {
-        return { error: String(e.message || e) }
+      const spec = APP_LAUNCH[key]
+      if (!spec) return { error: '不在白名单里' }
+      const target = spec.aumid ? `shell:AppsFolder\\${spec.aumid}` : spec.exe
+      const cmd = `[Console]::OutputEncoding=[Text.Encoding]::UTF8; try { Start-Process '${target}' -ErrorAction Stop; 'launched' } catch { 'ERR ' + $_.Exception.Message }`
+      const out = await runPsCmd(cmd)
+      await new Promise((r) => setTimeout(r, 2500))
+      const check = await runPsCmd(`[Console]::OutputEncoding=[Text.Encoding]::UTF8; $p = Get-Process -Name '${spec.proc}' -ErrorAction SilentlyContinue; if ($p) { 'RUNNING ' + @($p).Count } else { 'NOT-RUNNING' }`)
+      const running = check.includes('RUNNING') && !check.includes('NOT-RUNNING')
+      return {
+        ok: running,
+        launched: out.trim(),
+        process: check.trim(),
+        note: running ? `${key} 已经在运行` : `${key} 没有起来，可能是安装路径不同或需要手动授权`,
       }
     }
     case 'list_tasks': {
