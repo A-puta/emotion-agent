@@ -1,0 +1,7 @@
+﻿{
+    "endpoint":  "http://127.0.0.1:19387/api/dsh-im/delivery/messages",
+    "botId":  "qq_5c08f36a61c230a01136c5e4",
+    "targetId":  "tgt_6a66c3b451f9feeb",
+    "token":  "",
+    "type":  "dsh-im"
+}

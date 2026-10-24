@@ -161,18 +161,6 @@ export const TOOL_SPECS = [
   {
     type: 'function',
     function: {
-      name: 'send_qq',
-      description: '把一句话发到指定的 QQ/IM 会话（走 DSH 的投递接口，需要 DSH 在运行）',
-      parameters: {
-        type: 'object',
-        properties: { text: { type: 'string', description: '要发出去的一句话' } },
-        required: ['text'],
-      },
-    },
-  },
-  {
-    type: 'function',
-    function: {
       name: 'remember',
       description: '记一件事，之后可以回想起来（例如用户说过的话、答应过的事）',
       parameters: {
@@ -200,7 +188,7 @@ export const TOOL_SPECS = [
 ]
 
 export async function runTool(name, args, { scripts, state, mode, root }) {
-  const needFull = ['run_sentinel', 'open_app', 'list_tasks', 'send_file', 'send_qq']
+  const needFull = ['run_sentinel', 'open_app', 'list_tasks', 'send_file']
   if (needFull.includes(name) && mode !== 'full') {
     return { error: '这几个动作需要「完全权限」，先把标题栏开关拨过去' }
   }
@@ -334,32 +322,9 @@ export async function runTool(name, args, { scripts, state, mode, root }) {
       const items = (db.items || []).filter((x) => new Date(x.at).getTime() >= since)
       return { days, count: items.length, items: items.slice(-15) }
     }
-    case 'send_qq': {
-      const { readFileSync: rf } = await import('node:fs')
-      const { join: j } = await import('node:path')
-      let cfg = null
-      try {
-        cfg = JSON.parse(rf(j(scripts, 'config.json'), 'utf8').replace(/^\uFEFF/, ''))
-      } catch { }
-      const d = cfg?.delivery
-      if (!d?.endpoint) return { error: '没有找到投递配置（scripts/config.json 的 delivery）' }
-      const text = String(args?.text || '').slice(0, 500)
-      if (!text) return { error: '没给要发的内容' }
-      try {
-        const res = await fetch(d.endpoint, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json; charset=utf-8' },
-          body: JSON.stringify({ botId: d.botId, targetId: d.targetId, text }),
-        })
-        const body = await res.text()
-        if (!res.ok) return { error: `投递失败 HTTP ${res.status}: ${body.slice(0, 200)}` }
-        return { ok: true, sent: true, endpoint: d.endpoint, response: body.slice(0, 200) }
-      } catch (e) {
-        return { error: `投递接口不可达（DSH 可能没在运行）：${e.message}` }
-      }
-    }
     default:
       return { error: '未知工具' }
   }
 }
+
 
