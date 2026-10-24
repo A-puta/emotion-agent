@@ -233,6 +233,7 @@ python voice\voice_server.py     # POST /say
 | `run_sentinel` | 试跑主动搭话（默认不发） | 完全 |
 | `open_app` | 打开白名单程序（qq/wechat/edge/notepad/explorer/calc/vscode），会校验进程是否真的起来 | 完全 |
 | `list_tasks` | 查两个定时任务是否在跑 | 完全 |
+| `send_file` | 把文件复制到交付目录，并给出下载链接 | 完全 |
 
 举例：「现在情绪槽里有什么？再帮我从库里挑一句」→ 依次调 `get_state`、`pick_line`，再合成回答。
 面板会在气泡下面标出这一轮用了哪些工具。
@@ -342,4 +343,5 @@ docs/           约定总表、话语库、条件说明、演示脚本
 ## 十一、许可
 
 MIT，见 [LICENSE](LICENSE)。人格设定与话语库内容属于本项目作者，可自行改写。
+
 

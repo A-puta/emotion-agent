@@ -244,7 +244,7 @@ const server = createServer(async (req, res) => {
             args = JSON.parse(call.function?.arguments || '{}')
           } catch { }
           const name = call.function?.name || ''
-          const result = await runTool(name, args, { scripts: SCRIPTS, state: STATE, mode: panelMode() })
+          const result = await runTool(name, args, { scripts: SCRIPTS, state: STATE, mode: panelMode(), root: ROOT })
           trace.push({ tool: name, args, result })
           messages.push({
             role: 'tool',
@@ -384,6 +384,20 @@ const server = createServer(async (req, res) => {
     return send(res, 200, { ok: true, out: done.join(', ') })
   }
 
+  if (p.startsWith('/files/')) {
+    const name = decodeURIComponent(p.slice('/files/'.length))
+    try {
+      const data = readFileSync(join(ROOT, 'deliver', name))
+      res.writeHead(200, {
+        'Content-Type': 'application/octet-stream',
+        'Content-Disposition': `attachment; filename*=UTF-8''${encodeURIComponent(name)}`,
+      })
+      return res.end(data)
+    } catch {
+      return send(res, 404, { error: '文件不在了' })
+    }
+  }
+
   return send(res, 404, { error: 'not found' })
 })
 
@@ -395,4 +409,5 @@ server.listen(PORT, '127.0.0.1', () => {
   console.log(cfg.baseUrl && cfg.model && cfg.apiKey ? `模型接口：${cfg.baseUrl} (${cfg.model})` : '模型接口：未配置（面板照常可用）')
   if (!existsSync(CONFIG)) console.log(`提示：把 app/config.example.json 复制成 app/config.json 就能开启对话`)
 })
+
 

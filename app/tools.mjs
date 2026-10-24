@@ -114,10 +114,24 @@ export const TOOL_SPECS = [
       parameters: { type: 'object', properties: {}, required: [] },
     },
   },
+  {
+    type: 'function',
+    function: {
+      name: 'send_file',
+      description: '把一个本地文件交给你（复制到交付目录并给出下载链接）',
+      parameters: {
+        type: 'object',
+        properties: {
+          path: { type: 'string', description: '要交付的文件绝对路径，例如 D:\\DSH-资料\\jieyi-agent\\README.md' },
+        },
+        required: ['path'],
+      },
+    },
+  },
 ]
 
-export async function runTool(name, args, { scripts, state, mode }) {
-  const needFull = ['run_sentinel', 'open_app', 'list_tasks']
+export async function runTool(name, args, { scripts, state, mode, root }) {
+  const needFull = ['run_sentinel', 'open_app', 'list_tasks', 'send_file']
   if (needFull.includes(name) && mode !== 'full') {
     return { error: '这几个动作需要「完全权限」，先把标题栏开关拨过去' }
   }
@@ -176,6 +190,20 @@ export async function runTool(name, args, { scripts, state, mode }) {
     case 'list_tasks': {
       const out = await runPsCmd("[Console]::OutputEncoding=[Text.Encoding]::UTF8; Get-ScheduledTask -TaskName '外部哨兵脚本','结衣情绪到期' -ErrorAction SilentlyContinue | ForEach-Object { $_.TaskName + ' · ' + $_.State }")
       return { tasks: out }
+    }
+    case 'send_file': {
+      const raw = String(args?.path || '').trim()
+      if (!raw) return { error: '要给个文件路径' }
+      const { existsSync, statSync, mkdirSync, copyFileSync } = await import('node:fs')
+      const { basename, resolve, join: j } = await import('node:path')
+      const p = resolve(raw)
+      if (!existsSync(p) || !statSync(p).isFile()) return { error: `找不到文件：${p}` }
+      const deliver = j(root || '.', 'deliver')
+      mkdirSync(deliver, { recursive: true })
+      const name = basename(p)
+      const dest = j(deliver, name)
+      copyFileSync(p, dest)
+      return { ok: true, name, url: `/files/${encodeURIComponent(name)}`, size: statSync(dest).size }
     }
     default:
       return { error: '未知工具' }
