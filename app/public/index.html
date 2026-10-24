@@ -114,6 +114,13 @@
       <button onclick="sendChat()">发送</button>
     </div>
     <div class="dim" id="chat-hint" style="font-size:12px;margin-top:6px">未配置接口时，只演示状态机，不参与对话。</div>
+    <div class="row" style="margin-top:8px">
+      <button onclick="proactiveStart(3,8)">让它自己开口（3–8 分钟）</button>
+      <button onclick="proactiveStart(1,3)">密集一点（1–3 分钟）</button>
+      <button onclick="proactiveStop()">停止主动开口</button>
+      <button onclick="proactiveNow()">现在就让它说一句</button>
+    </div>
+    <div class="dim" id="proactive-hint" style="font-size:12px;margin-top:4px">未开启：只在你说完话后回应</div>
   </section>
 
   <section class="card full" id="adv-card" style="display:none">
@@ -315,11 +322,43 @@ function resetAll() { if (confirm('清空怒气、思念、情绪槽？')) adv('
 
 loadPanelMode()
 loadCfg()
+async function proactiveStart(min, max) {
+  await fetch('/api/proactive/start', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ min, max }) })
+  $('proactive-hint').textContent = `已开启：大约每 ${min}–${max} 分钟自己说一句`
+}
+async function proactiveStop() {
+  await fetch('/api/proactive/stop', { method: 'POST' })
+  $('proactive-hint').textContent = '已停止：只在你说完话后回应'
+}
+async function proactiveNow() {
+  await fetch('/api/proactive/now', { method: 'POST' })
+  await pullProactive()
+}
+let lastProactiveId = 0
+async function pullProactive() {
+  try {
+    const r = await (await fetch('/api/proactive/pending?after=' + lastProactiveId)).json()
+    for (const it of r.items || []) {
+      lastProactiveId = Math.max(lastProactiveId, it.id)
+      $('chat-log').appendChild(bubble('它', it.text))
+      history.push({ role: 'assistant', content: it.text })
+    }
+    if ((r.items || []).length) $('chat-log').scrollTop = $('chat-log').scrollHeight
+    if (r.on && r.nextAt) {
+      const mins = Math.max(0, Math.round((r.nextAt - Date.now()) / 60000))
+      $('proactive-hint').textContent = `主动开口已开启，约 ${mins} 分钟后`
+    }
+  } catch { }
+}
+setInterval(pullProactive, 5000)
+pullProactive()
 refresh()
 setInterval(refresh, 2000)
 </script>
 </body>
 </html>
+
+
 
 
 

@@ -24,6 +24,49 @@ const setPanelMode = (mode) => writeFileSync(PANEL_MODE_FILE, JSON.stringify({ m
 let timer = null
 let lastTimerRun = '未启动'
 
+// 控制台内的「主动搭话」：不等你说话，自己往对话里塞一条
+let proactiveTimer = null
+let proactiveSeq = 0
+const proactiveQueue = []
+let proactiveNext = null
+
+const scheduleProactive = (minMin, maxMin) => {
+  const lo = Math.max(1, minMin)
+  const hi = Math.max(lo + 1, maxMin)
+  const waitMin = lo + Math.random() * (hi - lo)
+  proactiveNext = Date.now() + waitMin * 60000
+  proactiveTimer = setTimeout(async () => {
+    try {
+      await saySomething()
+    } catch { }
+    scheduleProactive(lo, hi)
+  }, waitMin * 60000)
+}
+
+const saySomething = async () => {
+  const cfg = loadConfig()
+  const mode = readJson(join(STATE, 'sentinel-mode.json'))?.mode === 'model' ? 'model' : 'library'
+  let text = ''
+  if (mode === 'library') {
+    const out = await runPs('pick_phrase.ps1', ['-Show'])
+    const m = out.match(/^pick:\s*\[(.+?)\]\s*([\s\S]+)$/)
+    text = m ? m[2].trim() : ''
+  } else if (cfg.baseUrl && cfg.model) {
+    try {
+      const r = await callModel(cfg, [
+        { role: 'system', content: buildSystem() + '\n\n现在没人跟你说话，你自己开口说一句日常话，一到两句，不要提问。不要输出判定行。' },
+        { role: 'user', content: '（无消息：现在轮到你主动说话）' },
+      ])
+      text = stripVerdict(r.content || '').text
+    } catch { }
+  }
+  if (!text) return null
+  const item = { id: ++proactiveSeq, at: new Date().toISOString(), text }
+  proactiveQueue.push(item)
+  if (proactiveQueue.length > 30) proactiveQueue.shift()
+  return item
+}
+
 const readJson = (p) => {
   try {
     // PowerShell 写的 UTF-8 带 BOM，JSON.parse 会直接报错，这里先削掉
@@ -467,6 +510,38 @@ const server = createServer(async (req, res) => {
       lastTimerRun = '启动于 ' + new Date().toLocaleTimeString('zh-CN')
     }
     return send(res, 200, { ok: true, on, minutes, lastTimerRun })
+  }
+
+  if (p === '/api/proactive/start' && req.method === 'POST') {
+    const body = safeParse(await readBody(req)) || {}
+    if (proactiveTimer) clearTimeout(proactiveTimer)
+    const lo = Number(body.min) || 3
+    const hi = Number(body.max) || 8
+    scheduleProactive(lo, hi)
+    return send(res, 200, { ok: true, min: lo, max: hi, nextAt: proactiveNext })
+  }
+
+  if (p === '/api/proactive/stop' && req.method === 'POST') {
+    if (proactiveTimer) clearTimeout(proactiveTimer)
+    proactiveTimer = null
+    proactiveNext = null
+    return send(res, 200, { ok: true, on: false })
+  }
+
+  if (p === '/api/proactive/now' && req.method === 'POST') {
+    const item = await saySomething()
+    return send(res, 200, { ok: Boolean(item), item })
+  }
+
+  if (p === '/api/proactive/pending') {
+    const after = Number(url.searchParams.get('after') || 0)
+    const items = proactiveQueue.filter((x) => x.id > after)
+    return send(res, 200, {
+      items,
+      lastId: proactiveQueue.length ? proactiveQueue[proactiveQueue.length - 1].id : 0,
+      on: Boolean(proactiveTimer),
+      nextAt: proactiveNext,
+    })
   }
 
   if (p === '/api/anger-set') {
