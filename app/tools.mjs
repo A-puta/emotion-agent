@@ -128,6 +128,36 @@ export const TOOL_SPECS = [
       },
     },
   },
+  {
+    type: 'function',
+    function: {
+      name: 'read_logs',
+      description: '读最近几行日志（sentinel=哨兵、anger=怒气、persona=注入）',
+      parameters: {
+        type: 'object',
+        properties: {
+          name: { type: 'string', enum: ['sentinel', 'anger', 'persona'] },
+          lines: { type: 'number', description: '要几行，默认 30' },
+        },
+        required: ['name'],
+      },
+    },
+  },
+  {
+    type: 'function',
+    function: {
+      name: 'write_report',
+      description: '把一段内容写成 Markdown 文件并交付下载链接（用于整理成一份报告）',
+      parameters: {
+        type: 'object',
+        properties: {
+          title: { type: 'string' },
+          content: { type: 'string' },
+        },
+        required: ['title', 'content'],
+      },
+    },
+  },
 ]
 
 export async function runTool(name, args, { scripts, state, mode, root }) {
@@ -190,6 +220,29 @@ export async function runTool(name, args, { scripts, state, mode, root }) {
     case 'list_tasks': {
       const out = await runPsCmd("[Console]::OutputEncoding=[Text.Encoding]::UTF8; Get-ScheduledTask -TaskName '外部哨兵脚本','结衣情绪到期' -ErrorAction SilentlyContinue | ForEach-Object { $_.TaskName + ' · ' + $_.State }")
       return { tasks: out }
+    }
+    case 'read_logs': {
+      const map = { sentinel: 'sentinel.log', anger: 'anger.log' }
+      const n = Math.min(Number(args?.lines) || 30, 200)
+      if (args?.name === 'persona') {
+        const out = await runPsCmd(`[Console]::OutputEncoding=[Text.Encoding]::UTF8; Get-Content '${join(state, 'persona.log')}' -Tail ${n} -Encoding UTF8 -ErrorAction SilentlyContinue`)
+        return { lines: out }
+      }
+      const file = map[String(args?.name || '')]
+      if (!file) return { error: '日志名不认识' }
+      const out = await runPsCmd(`[Console]::OutputEncoding=[Text.Encoding]::UTF8; Get-Content '${join(scripts, file)}' -Tail ${n} -Encoding UTF8 -ErrorAction SilentlyContinue`)
+      return { lines: out || '（没有日志）' }
+    }
+    case 'write_report': {
+      const { mkdirSync, writeFileSync } = await import('node:fs')
+      const { join: j } = await import('node:path')
+      const title = String(args?.title || '报告').replace(/[\\/:*?"<>|]/g, '_').slice(0, 40)
+      const content = String(args?.content || '').slice(0, 20000)
+      const deliver = j(root || '.', 'deliver')
+      mkdirSync(deliver, { recursive: true })
+      const name = `${title}.md`
+      writeFileSync(j(deliver, name), `# ${title}\n\n${content}\n`, 'utf8')
+      return { ok: true, name, url: `/files/${encodeURIComponent(name)}` }
     }
     case 'send_file': {
       const raw = String(args?.path || '').trim()

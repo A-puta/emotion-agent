@@ -9,7 +9,7 @@ import { TOOL_SPECS, runTool } from './tools.mjs'
 
 const __dirname = dirname(fileURLToPath(import.meta.url))
 const ROOT = dirname(__dirname)
-const SCRIPTS = process.env.JIEYI_SCRIPTS || join(ROOT, 'scripts')
+const SCRIPTS = process.env.JIEYI_SCRIPTS || (existsSync('D:\\DSH-资料\\外部哨兵\\emotion.ps1') ? 'D:\\DSH-资料\\外部哨兵' : join(ROOT, 'scripts'))
 const STATE = process.env.JIEYI_STATE || (existsSync('D:\\DSH-资料\\结衣状态') ? 'D:\\DSH-资料\\结衣状态' : join(ROOT, 'state'))
 const CONFIG = process.env.JIEYI_CONFIG || join(ROOT, 'app', 'config.json')
 const PORT = Number(process.env.PORT || 18100)

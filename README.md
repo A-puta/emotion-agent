@@ -223,7 +223,7 @@ python voice\voice_server.py     # POST /say
 
 ### Agent 能力：它能真的动手
 
-对话面板不是纯聊天，模型可以**调用六个白名单工具**、最多四步串联：
+对话面板不是纯聊天，模型可以**调用九个白名单工具**、最多四步串联：
 
 | 工具 | 作用 | 需要的权限 |
 |---|---|---|
@@ -234,8 +234,10 @@ python voice\voice_server.py     # POST /say
 | `open_app` | 打开白名单程序（qq/wechat/edge/notepad/explorer/calc/vscode），会校验进程是否真的起来 | 完全 |
 | `list_tasks` | 查两个定时任务是否在跑 | 完全 |
 | `send_file` | 把文件复制到交付目录，并给出下载链接 | 完全 |
+| `read_logs` | 读哨兵 / 怒气 / 注入日志 | 完全 |
+| `write_report` | 把内容写成 Markdown 报告并交付 | 完全 |
 
-举例：「现在情绪槽里有什么？再帮我从库里挑一句」→ 依次调 `get_state`、`pick_line`，再合成回答。
+举例：看看我现在是什么状态，再挑句话 → get_state → pick_line；把最近的哨兵日志整理成报告发我 → ead_logs → write_report。
 面板会在气泡下面标出这一轮用了哪些工具。
 
 **边界**：只认这六个动作，不执行任意命令、不写任意文件；权限不足时工具调用会被直接拒绝并告诉模型。
@@ -343,5 +345,6 @@ docs/           约定总表、话语库、条件说明、演示脚本
 ## 十一、许可
 
 MIT，见 [LICENSE](LICENSE)。人格设定与话语库内容属于本项目作者，可自行改写。
+
 
 
