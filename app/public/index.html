@@ -242,6 +242,13 @@ async function sendChat() {
     } else {
       log.appendChild(bubble('它', j.reply))
       history.push({ role: 'assistant', content: j.reply })
+      if (Array.isArray(j.trace) && j.trace.length) {
+        const t = document.createElement('div')
+        t.className = 'dim'
+        t.style.cssText = 'font-size:12px;align-self:flex-start'
+        t.textContent = '用了：' + j.trace.map((x) => x.tool).join(' → ')
+        log.appendChild(t)
+      }
       if (j.applied && j.applied.length) $('chat-hint').textContent = '本轮动作：' + j.applied.join('、')
     }
   } catch (e) {

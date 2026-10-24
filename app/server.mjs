@@ -5,6 +5,7 @@ import { readFileSync, copyFileSync, writeFileSync, existsSync } from 'node:fs'
 import { join, dirname } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { spawn } from 'node:child_process'
+import { TOOL_SPECS, runTool } from './tools.mjs'
 
 const __dirname = dirname(fileURLToPath(import.meta.url))
 const ROOT = dirname(__dirname)
@@ -142,26 +143,32 @@ const applyVerdict = async (v) => {
   return done
 }
 
-const callModel = async (cfg, messages) => {
+const callModel = async (cfg, messages, tools = null) => {
   const url = cfg.baseUrl.replace(/\/$/, '') + '/chat/completions'
   const headers = { 'Content-Type': 'application/json' }
   if (cfg.apiKey) headers.Authorization = `Bearer ${cfg.apiKey}`
+  const payload = {
+    model: cfg.model,
+    messages,
+    temperature: Number(cfg.temperature ?? 0.8),
+    max_tokens: Number(cfg.maxTokens ?? 300),
+  }
+  if (tools) {
+    payload.tools = tools
+    payload.tool_choice = 'auto'
+  }
   const res = await fetch(url, {
     method: 'POST',
     headers,
-    body: JSON.stringify({
-      model: cfg.model,
-      messages,
-      temperature: Number(cfg.temperature ?? 0.8),
-      max_tokens: Number(cfg.maxTokens ?? 300),
-    }),
+    body: JSON.stringify(payload),
   })
   if (!res.ok) {
     const t = await res.text()
     throw new Error(`HTTP ${res.status}: ${t.slice(0, 300)}`)
   }
   const j = await res.json()
-  return j?.choices?.[0]?.message?.content ?? ''
+  const msg = j?.choices?.[0]?.message ?? {}
+  return { content: msg.content ?? '', toolCalls: msg.tool_calls ?? null }
 }
 
 const send = (res, code, body, type = 'application/json; charset=utf-8') => {
@@ -216,14 +223,44 @@ const server = createServer(async (req, res) => {
       return send(res, 400, { error: '还没配置接口：填 baseUrl 与 model（本地模型可以不填 key）' })
     }
     try {
-      const raw = await callModel(cfg, [
+      const messages = [
         { role: 'system', content: buildSystem() },
         ...(Array.isArray(body.history) ? body.history.slice(-8) : []),
         { role: 'user', content: text },
-      ])
+      ]
+      // —— Agent 循环：最多四步，允许模型调白名单工具 ——
+      const trace = []
+      let raw = ''
+      for (let step = 0; step < 4; step++) {
+        const { content, toolCalls } = await callModel(cfg, messages, TOOL_SPECS)
+        if (!toolCalls || toolCalls.length === 0) {
+          raw = content
+          break
+        }
+        messages.push({ role: 'assistant', content: content || null, tool_calls: toolCalls })
+        for (const call of toolCalls) {
+          let args = {}
+          try {
+            args = JSON.parse(call.function?.arguments || '{}')
+          } catch { }
+          const name = call.function?.name || ''
+          const result = await runTool(name, args, { scripts: SCRIPTS, state: STATE, mode: panelMode() })
+          trace.push({ tool: name, args, result })
+          messages.push({
+            role: 'tool',
+            tool_call_id: call.id,
+            content: JSON.stringify(result).slice(0, 1200),
+          })
+        }
+      }
+      if (!raw) {
+        // 循环用尽还要调工具时，让它直接给一句话收尾
+        const { content } = await callModel(cfg, messages)
+        raw = content
+      }
       const { text: reply, verdict } = stripVerdict(raw)
       const applied = await applyVerdict(verdict)
-      return send(res, 200, { reply, applied })
+      return send(res, 200, { reply, applied, trace })
     } catch (e) {
       return send(res, 502, { error: String(e.message || e) })
     }
