@@ -1,4 +1,4 @@
-﻿// 结衣控制台 · 零依赖本地服务
+// 结衣控制台 · 零依赖本地服务
 // 读状态文件 + 调已有脚本 + 可选接任意 OpenAI 兼容接口
 import { createServer } from 'node:http'
 import { readFileSync, copyFileSync, writeFileSync, existsSync } from 'node:fs'
@@ -43,12 +43,53 @@ const scheduleProactive = (minMin, maxMin) => {
   }, waitMin * 60000)
 }
 
+// 控制台自己替哨兵记账：拿到一条要发的话之后，按哨兵规则把状态推进
+// （否则每次轮询都会得到同一个"该发了"的判断，变成每十分钟刷一句）
+const commitSentinelSent = async (text, tag) => {
+  const stFile = join(SCRIPTS, 'state.json')
+  let st = readJson(stFile) || {}
+  let cfg = {}
+  try {
+    cfg = readJson(join(SCRIPTS, 'config.json')) || {}
+  } catch { }
+  const now = new Date()
+  const minH = Number(cfg?.interval?.minHours ?? 4)
+  const maxH = Number(cfg?.interval?.maxHours ?? 15)
+  const nextH = minH + Math.random() * Math.max(0.1, maxH - minH)
+  const freeTag = String(tag || '').includes('思念')
+  const recentLimit = Number(cfg?.recentLimit ?? 12)
+  const recent = [text, ...(Array.isArray(st.recent) ? st.recent : [])].slice(0, recentLimit)
+  st = {
+    ...st,
+    lastSentAt: now.toISOString().slice(0, 19),
+    todayDate: now.toISOString().slice(0, 10),
+    todayCount: freeTag ? Number(st.todayCount || 0) : Number(st.todayCount || 0) + 1,
+    nextEligibleAt: new Date(now.getTime() + nextH * 3600000).toISOString().slice(0, 19),
+    lastDecision: 'sent-console',
+    lastTag: tag || '关心',
+    missingPhase: false,
+    recent,
+  }
+  writeFileSync(stFile, JSON.stringify(st, null, 1), 'utf8')
+  try {
+    await runPs('missing.ps1', ['-MarkSent', '-Tag', tag || '关心'])
+  } catch { }
+  return st.nextEligibleAt
+}
+
 const saySomething = async (opts = {}) => {
   // 默认走哨兵脚本自己的判断（沉默门槛、概率、每日上限、思念等级全由它决定）
   const args = opts.force ? ['-DryRun', '-Force'] : ['-DryRun']
   const out = await runPs('外部哨兵脚本.ps1', args)
   const m = out.match(/\[DRYRUN\]\s*would send:\s*(.+)/)
   let text = m ? m[1].trim() : ''
+  const tm = out.match(/tag\s*([^\s,)]+)/)
+  const tagCandidates = [
+    ...out.matchAll(/library pick \[(.+?)\]/g),
+    ...out.matchAll(/forces tag ->\s*(\S+)/g),
+    ...out.matchAll(/\(branch [^,]+, tag ([^,)]+)/g),
+  ].map((x) => x[1].trim())
+  const tag = tagCandidates.length ? tagCandidates[tagCandidates.length - 1] : (tm ? tm[1] : '关心')
   if (!text && opts.modelFallback) {
     const cfg = loadConfig()
     if (cfg.baseUrl && cfg.model) {
@@ -62,7 +103,8 @@ const saySomething = async (opts = {}) => {
     }
   }
   if (!text) return null
-  const item = { id: ++proactiveSeq, at: new Date().toISOString(), text }
+  await commitSentinelSent(text, tag)
+  const item = { id: ++proactiveSeq, tag, at: new Date().toISOString(), text }
   proactiveQueue.push(item)
   if (proactiveQueue.length > 30) proactiveQueue.shift()
   return item
@@ -600,6 +642,7 @@ server.listen(PORT, '127.0.0.1', () => {
   console.log(cfg.baseUrl && cfg.model && cfg.apiKey ? `模型接口：${cfg.baseUrl} (${cfg.model})` : '模型接口：未配置（面板照常可用）')
   if (!existsSync(CONFIG)) console.log(`提示：把 app/config.example.json 复制成 app/config.json 就能开启对话`)
 })
+
 
 
 
