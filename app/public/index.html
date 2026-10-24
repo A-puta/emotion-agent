@@ -119,6 +119,7 @@
       <button onclick="proactiveStart(2,4)">密集一点（2–4 分钟）</button>
       <button onclick="proactiveStop()">停止主动开口</button>
       <button onclick="proactiveNow()">现在就让它说一句</button>
+      <button onclick="sentinelForce()">强制哨兵输出一句</button>
     </div>
     <div class="dim" id="proactive-hint" style="font-size:12px;margin-top:4px">未开启：只在你说完话后回应</div>
   </section>
@@ -330,6 +331,7 @@ async function proactiveStop() {
   await fetch('/api/proactive/stop', { method: 'POST' })
   $('proactive-hint').textContent = '已停止：只在你说完话后回应'
 }
+async function sentinelForce() { const r = await fetch('/api/proactive/now?force=1', { method: 'POST' }); const j = await r.json(); if (!j.ok) { $('proactive-hint').textContent = '哨兵这次没给话（判定不通过或脚本出错）' } await pullProactive() }
 async function proactiveNow() {
   await fetch('/api/proactive/now?force=1', { method: 'POST' })
   await pullProactive()
@@ -357,6 +359,8 @@ setInterval(refresh, 2000)
 </script>
 </body>
 </html>
+
+
 
 
 
