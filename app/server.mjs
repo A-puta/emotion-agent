@@ -544,7 +544,6 @@ const server = createServer(async (req, res) => {
   }
 
   if (p === '/api/missing-set') {
-    if (panelMode() !== 'full') return needFull(res)
     const level = String(url.searchParams.get('level') || '').toUpperCase()
     if (!['C', 'B', 'A'].includes(level)) return send(res, 400, { error: '等级只能是 C / B / A' })
     const file = join(STATE, 'missing.json')
@@ -663,6 +662,7 @@ server.listen(PORT, '127.0.0.1', () => {
   console.log(cfg.baseUrl && cfg.model && cfg.apiKey ? `模型接口：${cfg.baseUrl} (${cfg.model})` : '模型接口：未配置（面板照常可用）')
   if (!existsSync(CONFIG)) console.log(`提示：把 app/config.example.json 复制成 app/config.json 就能开启对话`)
 })
+
 
 
 

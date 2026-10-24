@@ -178,7 +178,7 @@ async function setSmode(mode) { await fetch('/api/sentinel-mode?mode=' + mode); 
 async function resetAnger() { await fetch('/api/anger-reset'); refresh() }
 async function setEmo(label) { await fetch('/api/emotion-set?label=' + encodeURIComponent(label)); refresh() }
 async function clearEmo() { await fetch('/api/emotion-clear'); refresh() }
-async function setMissing(lv) { const r = await fetch('/api/missing-set?level=' + lv); const j = await r.json(); if (j.error) alert(j.error); refresh() }
+async function setMissing(lv) { const r = await fetch('/api/missing-set?level=' + lv); const j = await r.json(); if (j.error) { alert(j.error); return } missing.textContent = j.level; refresh() }
 async function pick(fg) {
   $('pick-out').textContent = '挑选中…'
   const r = await (await fetch('/api/pick?fg=' + encodeURIComponent(fg))).json()
@@ -328,6 +328,7 @@ setInterval(refresh, 2000)
 </script>
 </body>
 </html>
+
 
 
 
