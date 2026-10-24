@@ -21,3 +21,5 @@ scripts/phrase-usage.json
 scripts/*.log
 hash-report.txt
 status.txt
+
+app/panel-mode.json

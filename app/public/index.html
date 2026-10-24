@@ -30,6 +30,12 @@
 <header>
   <h1>结衣 · 控制台</h1>
   <div class="sub">本地只读状态 + 模式开关；数据每 2 秒刷新</div>
+  <div style="margin-top:10px;display:flex;align-items:center;gap:10px;font-size:13px">
+    <span class="dim">权限</span>
+    <button id="pm-partial" onclick="setPanelMode('partial')">部分</button>
+    <button id="pm-full" onclick="setPanelMode('full')">完全</button>
+    <span id="pm-hint" class="dim"></span>
+  </div>
 </header>
 
 <main>
@@ -103,6 +109,31 @@
       <button onclick="sendChat()">发送</button>
     </div>
     <div class="dim" id="chat-hint" style="font-size:12px;margin-top:6px">未配置接口时，只演示状态机，不参与对话。</div>
+  </section>
+
+  <section class="card full" id="adv-card" style="display:none">
+    <h2>高级操作 · 仅完全权限</h2>
+    <div class="row">
+      <button onclick="task('外部哨兵脚本','start')">启动哨兵</button>
+      <button onclick="task('外部哨兵脚本','stop')">停止哨兵</button>
+      <button onclick="task('结衣情绪到期','start')">启动情绪任务</button>
+      <button onclick="task('结衣情绪到期','stop')">停止情绪任务</button>
+    </div>
+    <div class="row">
+      <button onclick="sentinelRun(0)">试跑一次哨兵（不发）</button>
+      <button onclick="sentinelRun(1)">真的发一条</button>
+      <button onclick="logs('sentinel')">哨兵日志</button>
+      <button onclick="logs('anger')">怒气日志</button>
+      <button onclick="resetAll()">清空全部状态</button>
+    </div>
+    <div class="row">
+      <span class="dim" style="align-self:center;font-size:12px">怒气设为</span>
+      <button onclick="angerSet(-1)">-1</button>
+      <button onclick="angerSet(0)">0</button>
+      <button onclick="angerSet(1)">1</button>
+      <button onclick="angerSet(2)">2</button>
+    </div>
+    <pre id="adv-out" style="max-height:260px;overflow:auto">—</pre>
   </section>
 
   <section class="card full">
@@ -222,6 +253,42 @@ async function sendChat() {
 
 $('chat-input').addEventListener('keydown', (e) => { if (e.key === 'Enter') sendChat() })
 
+// ---------------- 权限 ----------------
+let pmode = 'partial'
+
+async function loadPanelMode() {
+  const r = await (await fetch('/api/panel-mode')).json()
+  applyPanelMode(r.mode)
+}
+
+function applyPanelMode(mode) {
+  pmode = mode === 'full' ? 'full' : 'partial'
+  $('pm-partial').className = pmode === 'partial' ? 'on' : ''
+  $('pm-full').className = pmode === 'full' ? 'on' : ''
+  $('adv-card').style.display = pmode === 'full' ? '' : 'none'
+  $('pm-hint').textContent = pmode === 'full'
+    ? '可启停任务、试发消息、看日志、直接设怒气'
+    : '只能看状态、加/清情绪、清怒气、切模式'
+}
+
+async function setPanelMode(mode) {
+  await fetch('/api/panel-mode', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ mode }) })
+  await loadPanelMode()
+}
+
+async function adv(url) {
+  const r = await fetch(url)
+  const j = await r.json().catch(() => ({}))
+  $('adv-out').textContent = j.error ? ('错误：' + j.error) : (j.out || 'ok')
+  refresh()
+}
+function task(name, action) { adv('/api/task?name=' + encodeURIComponent(name) + '&action=' + action) }
+function sentinelRun(real) { adv('/api/sentinel-run' + (real ? '?real=1' : '')) }
+function logs(name) { adv('/api/logs?name=' + name) }
+function angerSet(v) { adv('/api/anger-set?value=' + v) }
+function resetAll() { if (confirm('清空怒气、思念、情绪槽？')) adv('/api/reset-all') }
+
+loadPanelMode()
 loadCfg()
 refresh()
 setInterval(refresh, 2000)

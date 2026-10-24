@@ -14,6 +14,10 @@ const CONFIG = process.env.JIEYI_CONFIG || join(ROOT, 'app', 'config.json')
 const PORT = Number(process.env.PORT || 18100)
 const PS = 'powershell.exe'
 const SESSION = 'console'
+const PANEL_MODE_FILE = join(ROOT, 'app', 'panel-mode.json')
+
+const panelMode = () => (readJson(PANEL_MODE_FILE)?.mode === 'full' ? 'full' : 'partial')
+const setPanelMode = (mode) => writeFileSync(PANEL_MODE_FILE, JSON.stringify({ mode: mode === 'full' ? 'full' : 'partial' }, null, 2), 'utf8')
 
 const readJson = (p) => {
   try {
@@ -50,8 +54,20 @@ const runPs = (script, args = []) =>
     child.on('error', (e) => resolve('ERR ' + e.message))
   })
 
-const readState = () => ({
-  anger: readJson(join(STATE, 'anger.json')),
+const runPsCommand = (cmd) =>
+  new Promise((resolve) => {
+    const child = spawn(PS, ['-NoProfile', '-ExecutionPolicy', 'Bypass', '-Command', cmd], {
+      windowsHide: true,
+      stdio: ['ignore', 'pipe', 'pipe'],
+    })
+    let out = ''
+    child.stdout.on('data', (d) => (out += d.toString()))
+    child.stderr.on('data', (d) => (out += d.toString()))
+    child.on('close', () => resolve(out.trim()))
+    child.on('error', (e) => resolve('ERR ' + e.message))
+  })
+
+const readState = () => ({  anger: readJson(join(STATE, 'anger.json')),
   missing: readJson(join(STATE, 'missing.json')),
   emotion: readJson(join(STATE, 'emotion.json')),
   emotionMode: readJson(join(STATE, 'emotion-mode.json')),
@@ -263,6 +279,72 @@ const server = createServer(async (req, res) => {
       child.on('error', () => resolve(''))
     })
     return send(res, 200, { ok: true, out })
+  }
+
+  if (p === '/api/panel-mode') {
+    if (req.method === 'POST') {
+      const body = safeParse(await readBody(req)) || {}
+      setPanelMode(body.mode)
+      return send(res, 200, { ok: true, mode: panelMode() })
+    }
+    return send(res, 200, { mode: panelMode() })
+  }
+
+  // —— 以下只在「完全权限」下开放 ——
+  const needFull = (res2) => {
+    send(res2, 403, { error: '当前是部分权限：先在标题栏把开关拨到「完全权限」' })
+    return false
+  }
+
+  if (p === '/api/task') {
+    if (panelMode() !== 'full') return needFull(res)
+    const name = String(url.searchParams.get('name') || '')
+    const action = String(url.searchParams.get('action') || '').toLowerCase()
+    const allowed = { 外部哨兵脚本: true, 结衣情绪到期: true }
+    if (!allowed[name]) return send(res, 400, { error: '任务名不认识' })
+    const map = { start: 'Start-ScheduledTask', stop: 'Stop-ScheduledTask', enable: 'Enable-ScheduledTask', disable: 'Disable-ScheduledTask' }
+    if (!map[action]) return send(res, 400, { error: '动作不认识' })
+    const cmd = `[Console]::OutputEncoding=[Text.Encoding]::UTF8; ${map[action]} -TaskName '${name}' -ErrorAction Stop | Out-Null; (Get-ScheduledTask -TaskName '${name}').State`
+    const out = await runPsCommand(cmd)
+    return send(res, 200, { ok: true, out })
+  }
+
+  if (p === '/api/sentinel-run') {
+    if (panelMode() !== 'full') return needFull(res)
+    const dry = url.searchParams.get('real') !== '1'
+    const args = dry ? ['-DryRun', '-Force'] : ['-Force']
+    const out = await runPs('外部哨兵脚本.ps1', args)
+    return send(res, 200, { ok: true, dry, out: out.slice(-1500) })
+  }
+
+  if (p === '/api/anger-set') {
+    if (panelMode() !== 'full') return needFull(res)
+    const v = Number(url.searchParams.get('value'))
+    if (![-1, 0, 1, 2].includes(v)) return send(res, 400, { error: '只能设 -1 / 0 / 1 / 2' })
+    const cmd = `[Console]::OutputEncoding=[Text.Encoding]::UTF8; $p='${join(STATE, 'anger.json')}'; $j = Get-Content $p -Raw -Encoding UTF8 | ConvertFrom-Json; $j.anger = ${v}; $j | ConvertTo-Json -Depth 6 | Set-Content $p -Encoding UTF8; 'ok'`
+    const out = await runPsCommand(cmd)
+    return send(res, 200, { ok: true, out })
+  }
+
+  if (p === '/api/logs') {
+    if (panelMode() !== 'full') return needFull(res)
+    const name = url.searchParams.get('name') || 'sentinel'
+    const map = { sentinel: 'sentinel.log', anger: 'anger.log', persona: 'persona.log' }
+    const file = map[name]
+    if (!file) return send(res, 400, { error: '日志名不认识' })
+    const path = name === 'persona' ? join(STATE, file) : join(SCRIPTS, file)
+    const cmd = `[Console]::OutputEncoding=[Text.Encoding]::UTF8; if (Test-Path '${path}') { Get-Content '${path}' -Tail 40 -Encoding UTF8 } else { '（没有日志文件）' }`
+    return send(res, 200, { ok: true, out: await runPsCommand(cmd) })
+  }
+
+  if (p === '/api/reset-all') {
+    if (panelMode() !== 'full') return needFull(res)
+    const done = []
+    for (const s of ['anger.ps1', 'missing.ps1', 'emotion.ps1']) {
+      await runPs(s, ['-Reset'])
+      done.push(s)
+    }
+    return send(res, 200, { ok: true, out: done.join(', ') })
   }
 
   return send(res, 404, { error: 'not found' })
