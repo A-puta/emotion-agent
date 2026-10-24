@@ -245,6 +245,7 @@ python voice\voice_server.py     # POST /say
 | `send_file` | 把文件复制到交付目录，并给出下载链接 | 完全 |
 | `read_logs` | 读哨兵 / 怒气 / 注入日志 | 完全 |
 | `write_report` | 把内容写成 Markdown 报告并交付 | 完全 |
+| `send_qq` | 直接把一句话发到 QQ/IM 会话（走 DSH 投递接口） | 完全 |
 | `remember` | 记一件事（约定、夸奖、心情） | 部分 |
 | `recall` | 回想最近记下的事 | 部分 |
 
@@ -358,6 +359,7 @@ docs/           约定总表、话语库、条件说明、演示脚本
 ## 十一、许可
 
 MIT，见 [LICENSE](LICENSE)。人格设定与话语库内容属于本项目作者，可自行改写。
+
 
 
 
