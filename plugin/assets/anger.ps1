@@ -92,6 +92,7 @@ EnsureField $st 'pactPending' $false
 EnsureField $st 'pactAskedAt' ''
 EnsureField $st 'pactBrokenCount' 0
 EnsureField $st 'lockCount' 0
+EnsureField $st 'maliceArmed' $false
 if ($null -eq $st.anger) { $st | Add-Member -NotePropertyName anger -NotePropertyValue $minA -Force }
 
 # ---- lock window expiry -> post-lock mode ----
@@ -161,17 +162,33 @@ switch ($action) {
     $result = Update-Peaks
   }
   'malice' {
-    # 说脏话/辱骂（2026-10-23 改）：怒气至少到 1，并挂上"等待约定"；
-    # 不再直接冲到 2、不记峰值——锁不锁由对方是否答应约定决定。
+    # 说脏话/辱骂（2026-10-24 用户新规）：
+    # 第一次骂 -> 怒气到 1 并挂"等待约定"；
+    # 若怒气还没降回 -1 又骂了一次 -> 直接到 2 并第一次锁死。
     $st.maliceCount = [int]$st.maliceCount + 1
-    if ([int]$st.anger -lt 1) { $st.anger = 1 }
-    $st.pactPending = $true
-    $st.pactAskedAt = $now.ToString('s')
-    Push-Cause 'malice'
-    $result = 'pact-asked'
+    if ($st.maliceArmed -and -not $st.locked) {
+      $st.anger = $maxA
+      $st.pactPending = $false
+      $st.pactAskedAt = ''
+      Push-Cause 'malice'
+      $st.locked = $true
+      $st.lockedAt = $now.ToString('s')
+      $st.lockUntil = $now.AddMinutes([int]$cfg.lockMinutes).ToString('s')
+      $st.postLockPending = $true
+      $st.postLockComforts = 0
+      $st.lockCount = [int]$st.lockCount + 1
+      $result = 'locked-by-repeat-malice'
+    } else {
+      if ([int]$st.anger -lt 1) { $st.anger = 1 }
+      $st.maliceArmed = $true
+      $st.pactPending = $true
+      $st.pactAskedAt = $now.ToString('s')
+      Push-Cause 'malice'
+      $result = 'pact-asked'
+    }
   }
   'pact' {
-    # 对方答应以后不再说由衣坏话：撤掉待定，怒气落一格
+    # 对方答应以后不再说结衣坏话：撤掉待定，怒气落一格
     if ($st.pactPending) {
       $st.pactPending = $false
       $st.pactAskedAt = ''
@@ -208,6 +225,8 @@ switch ($action) {
     if ($st.locked) { $result = 'locked-no-decay' }
     elseif ([int]$st.anger -lt $maxA) {
       $st.anger = [Math]::Max($minA, [int]$st.anger - 1)
+      # 降回最低之后，"连续骂人"的计数才归零
+      if ([int]$st.anger -le $minA) { $st.maliceArmed = $false }
       $result = 'decayed'
     } else { $result = 'at-max' }
   }
@@ -239,7 +258,7 @@ switch ($action) {
     }
   }
   'neglect' {
-    # 2026-10-23 起停用：思念得不到回复不再让由衣生气（规则已删）。
+    # 2026-10-23 起停用：思念得不到回复不再让结衣生气（规则已删）。
     $result = 'neglect-disabled'
   }
   'reset' {
@@ -250,6 +269,7 @@ switch ($action) {
     $st.pactPending = $false; $st.pactAskedAt = ''; $st.neglect = $false
     $st.lockCount = 0
     $result = 'reset'
+    $st.maliceArmed = $false  # reset
   }
   'unlock' {
     if ($st.locked) { $st.locked = $false; $st.postLockPending = $true; $st.postLockComforts = 0; $result = 'lock-ended' }
