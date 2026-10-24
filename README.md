@@ -319,8 +319,8 @@ Register-ScheduledTask -TaskName '外部哨兵脚本' -Action $a -Trigger $t -Fo
 ```
 app/            控制台：server.mjs（零依赖 HTTP）+ public/index.html + tools.mjs
 plugin/         DSH 插件：读状态、注入、转发判定、自动补脚本
-  assets/       随插件分发的脚本、状态模板、话语库、persona.md、颜文字库
-scripts/        情绪槽 / 怒气 / 思念 / 哨兵 / 话语库挑选器 / 自检 / 状态模板
+  assets/       随插件分发的同一批脚本 + persona.md + 颜文字库（与控制台那份内容一致，自检会校验）
+scripts/        情绪槽 / 怒气 / 思念 / 哨兵 / 话语库挑选器 / 自检 / 状态模板（控制台运行用）
 docs/           约定总表、话语库、条件说明、场景与边界、演示脚本
 ```
 

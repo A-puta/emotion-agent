@@ -60,6 +60,20 @@ Check '文件下载' {
   "HTTP $($f.StatusCode) $($f.RawContentLength) 字节"
 }
 
+# 副本一致性：scripts/ 与 plugin/assets/ 里的同名脚本必须一致
+Check '副本一致性' {
+  $root = Split-Path -Parent $PSScriptRoot
+  $a = Join-Path $root 'scripts'
+  $b = Join-Path $root 'plugin\assets'
+  $diff = @()
+  foreach ($f in Get-ChildItem $a -File) {
+    $other = Join-Path $b $f.Name
+    if ((Test-Path $other) -and ((Get-FileHash $f.FullName).Hash -ne (Get-FileHash $other).Hash)) { $diff += $f.Name }
+  }
+  if ($diff.Count) { throw ("不一致：" + ($diff -join ', ')) }
+  "一致"
+}
+
 $results | Format-Table -AutoSize | Out-String -Width 150
 $fail = ($results | Where-Object { $_.结果 -ne 'OK' }).Count
 "失败项：$fail / $($results.Count)"
