@@ -1,0 +1,23 @@
+{
+    "sessionId":  "sessB",
+    "updatedAt":  "2026-10-24T21:09:55",
+    "slots":  [
+                  {
+                      "label":  "害羞",
+                      "at":  "2026-10-24T20:35:34"
+                  },
+                  {
+                      "label":  "淘气",
+                      "at":  "2026-10-24T20:36:39"
+                  }
+              ],
+    "seg":  {
+                "startAt":  null,
+                "lastUserAt":  null,
+                "count":  0,
+                "lastA":  0
+            },
+    "fatigue":  0,
+    "fatigueAt":  null,
+    "lock":  false
+}

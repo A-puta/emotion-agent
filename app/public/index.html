@@ -1,0 +1,141 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>结衣 · 控制台</title>
+<style>
+  :root { --bg:#111316; --card:#1a1d21; --line:#2a2f35; --fg:#e8e6e3; --dim:#8b9099; --hot:#c4564a; --cool:#6d8fbf; --ok:#5f9e6e; }
+  * { box-sizing:border-box }
+  body { margin:0; background:var(--bg); color:var(--fg); font:14px/1.6 "Segoe UI","Microsoft YaHei",sans-serif }
+  header { padding:22px 28px 6px }
+  h1 { margin:0; font-size:19px; font-weight:600; letter-spacing:.5px }
+  .sub { color:var(--dim); font-size:12px; margin-top:4px }
+  main { padding:16px 28px 40px; display:grid; gap:14px; grid-template-columns:repeat(auto-fit,minmax(260px,1fr)); max-width:1180px }
+  .card { background:var(--card); border:1px solid var(--line); border-radius:10px; padding:16px 18px }
+  .card h2 { margin:0 0 10px; font-size:12px; color:var(--dim); font-weight:500; letter-spacing:1px }
+  .big { font-size:26px; font-weight:600; letter-spacing:.5px }
+  .row { display:flex; gap:8px; flex-wrap:wrap; margin-top:12px }
+  button { background:#23272c; color:var(--fg); border:1px solid var(--line); border-radius:7px; padding:7px 12px; cursor:pointer; font:inherit }
+  button:hover { border-color:#3d444c }
+  button.on { border-color:var(--ok); color:#9ed7ad }
+  .chips { display:flex; gap:8px; flex-wrap:wrap; margin-top:8px }
+  .chip { border:1px solid var(--line); border-radius:20px; padding:4px 12px; font-size:13px }
+  .hot { color:var(--hot) } .cool { color:var(--cool) } .dim { color:var(--dim) }
+  pre { white-space:pre-wrap; margin:8px 0 0; color:var(--dim); font-size:12px }
+  .full { grid-column:1/-1 }
+</style>
+</head>
+<body>
+<header>
+  <h1>结衣 · 控制台</h1>
+  <div class="sub">本地只读状态 + 模式开关；数据每 2 秒刷新</div>
+</header>
+
+<main>
+  <section class="card">
+    <h2>情绪槽</h2>
+    <div class="big" id="slots">—</div>
+    <div class="chips" id="slot-chips"></div>
+    <pre id="emotion-raw"></pre>
+  </section>
+
+  <section class="card">
+    <h2>怒气</h2>
+    <div class="big" id="anger">—</div>
+    <pre id="anger-raw"></pre>
+    <div class="row"><button onclick="resetAnger()">清零</button></div>
+  </section>
+
+  <section class="card">
+    <h2>思念</h2>
+    <div class="big" id="missing">—</div>
+    <pre id="missing-raw"></pre>
+  </section>
+
+  <section class="card">
+    <h2>情绪槽适用范围</h2>
+    <div class="big" id="emode">—</div>
+    <div class="row">
+      <button id="b-daily" onclick="setEmode('daily')">仅日常</button>
+      <button id="b-all" onclick="setEmode('all')">全部对话</button>
+    </div>
+  </section>
+
+  <section class="card">
+    <h2>主动搭话方式</h2>
+    <div class="big" id="smode">—</div>
+    <div class="row">
+      <button id="b-library" onclick="setSmode('library')">话语库（0 花费）</button>
+      <button id="b-model" onclick="setSmode('model')">模型现写</button>
+    </div>
+    <pre id="usage"></pre>
+  </section>
+
+  <section class="card">
+    <h2>试挑一句</h2>
+    <div class="row">
+      <button onclick="pick('')">任意</button>
+      <button onclick="pick('work')">工作态</button>
+      <button onclick="pick('game')">游戏态</button>
+    </div>
+    <pre id="pick-out">点一下看看库会说什么</pre>
+  </section>
+
+  <section class="card full">
+    <h2>调试</h2>
+    <pre id="debug">—</pre>
+  </section>
+</main>
+
+<script>
+const $ = (id) => document.getElementById(id)
+const fmt = (v) => (v === null || v === undefined ? '—' : String(v))
+
+async function refresh() {
+  try {
+    const s = await (await fetch('/api/state')).json()
+    const slots = (s.emotion?.slots || []).map((x) => x.label)
+    $('slots').textContent = slots.length ? slots.join(' + ') : '空'
+    $('slot-chips').innerHTML = slots.map((x) => `<span class="chip">${x}</span>`).join('')
+    $('emotion-raw').textContent = `疲惫 ${fmt(s.emotion?.fatigue)} ｜ 锁槽 ${s.emotion?.lock ? '是' : '否'} ｜ 本段轮数 ${fmt(s.emotion?.seg?.count)} ｜ 平均间隔 ${fmt(s.emotion?.seg?.lastA)} 分钟`
+
+    const anger = s.anger?.anger
+    $('anger').textContent = fmt(anger)
+    $('anger').className = 'big ' + (Number(anger) > 0 ? 'hot' : 'dim')
+    $('anger-raw').textContent = s.anger?.locked ? '锁死中' : ''
+
+    $('missing').textContent = fmt(s.missing?.level)
+    $('missing').className = 'big ' + (s.missing?.level === 'A' ? 'cool' : 'dim')
+
+    const em = s.emotionMode?.mode === 'all' ? '全部对话' : '仅日常对话'
+    $('emode').textContent = em
+    $('b-daily').className = s.emotionMode?.mode === 'all' ? '' : 'on'
+    $('b-all').className = s.emotionMode?.mode === 'all' ? 'on' : ''
+
+    const sm = s.sentinelMode?.mode === 'model' ? '模型现写' : '话语库挑句'
+    $('smode').textContent = sm
+    $('b-library').className = s.sentinelMode?.mode === 'model' ? '' : 'on'
+    $('b-model').className = s.sentinelMode?.mode === 'model' ? 'on' : ''
+
+    $('usage').textContent = `今天已挑 ${fmt(s.usage?.total)} 条`
+    $('debug').textContent = JSON.stringify(s, null, 1)
+  } catch (e) {
+    $('debug').textContent = '读取失败：' + e.message
+  }
+}
+
+async function setEmode(mode) { await fetch('/api/emotion-mode?mode=' + mode); refresh() }
+async function setSmode(mode) { await fetch('/api/sentinel-mode?mode=' + mode); refresh() }
+async function resetAnger() { await fetch('/api/anger-reset'); refresh() }
+async function pick(fg) {
+  $('pick-out').textContent = '挑选中…'
+  const r = await (await fetch('/api/pick?fg=' + encodeURIComponent(fg))).json()
+  $('pick-out').textContent = r.line || '（没有满足条件的句子）'
+}
+
+refresh()
+setInterval(refresh, 2000)
+</script>
+</body>
+</html>

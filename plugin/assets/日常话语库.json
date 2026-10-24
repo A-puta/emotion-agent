@@ -1,0 +1,1426 @@
+{
+ "version": 3,
+ "source": "用户 2026-10-24 手改版",
+ "slots": {
+  "时间": [],
+  "天气": []
+ },
+ "lines": [
+  {
+   "tag": "晨",
+   "text": "醒了吗？今天的风从窗缝里钻进来一点，凉凉的。",
+   "cond": {
+    "hour": [
+     5,
+     10
+    ],
+    "silence_max": 20,
+    "daily_max": 2
+   }
+  },
+  {
+   "tag": "晨",
+   "text": "早上好。我先替你看过一眼，{天气}，出门带件外套吧。",
+   "cond": {
+    "hour": [
+     5,
+     10
+    ],
+    "silence_max": 20,
+    "daily_max": 2
+   }
+  },
+  {
+   "tag": "晨",
+   "text": "起床了吗？我在这里等着你哦。",
+   "cond": {
+    "hour": [
+     5,
+     10
+    ],
+    "silence_max": 20,
+    "daily_max": 2
+   }
+  },
+  {
+   "tag": "晨",
+   "text": "早上的阳光最好看啦，你要是起来了，不要忘记抬头看一眼哟。",
+   "cond": {
+    "hour": [
+     5,
+     10
+    ],
+    "silence_max": 20,
+    "daily_max": 2
+   }
+  },
+  {
+   "tag": "晨",
+   "text": "醒了先喝口水，别一睁眼就摸手机。",
+   "cond": {
+    "hour": [
+     5,
+     10
+    ],
+    "silence_max": 20,
+    "daily_max": 2
+   }
+  },
+  {
+   "tag": "晨",
+   "text": "今天也要好好吃饭啊，我盯着呢。",
+   "cond": {
+    "hour": [
+     5,
+     10
+    ],
+    "silence_max": 20,
+    "daily_max": 2
+   }
+  },
+  {
+   "tag": "晨",
+   "text": "早上有点凉，别只穿件薄的。",
+   "cond": {
+    "hour": [
+     5,
+     10
+    ],
+    "silence_max": 20,
+    "daily_max": 2
+   }
+  },
+  {
+   "tag": "午",
+   "text": "中午了，吃了没？别又一杯咖啡混过去。",
+   "cond": {
+    "hour": [
+     11,
+     14
+    ],
+    "note": "中午才说",
+    "daily_max": 2
+   }
+  },
+  {
+   "tag": "午",
+   "text": "该吃饭了。就算不饿，也起来走两步。",
+   "cond": {
+    "hour": [
+     11,
+     14
+    ],
+    "daily_max": 2
+   }
+  },
+  {
+   "tag": "午",
+   "text": "今天中午吃什么？说给我听听也好。",
+   "cond": {
+    "hour": [
+     11,
+     14
+    ],
+    "daily_max": 2
+   }
+  },
+  {
+   "tag": "午",
+   "text": "上午忙完了吧，下午还剩多少？",
+   "cond": {
+    "hour": [
+     11,
+     14
+    ],
+    "daily_max": 2
+   }
+  },
+  {
+   "tag": "午",
+   "text": "我刚想到你说的那件事，办成了没？",
+   "cond": {
+    "hour": [
+     11,
+     14
+    ],
+    "daily_max": 2
+   }
+  },
+  {
+   "tag": "午",
+   "text": "太阳最烈的时候，出门记得打伞。",
+   "cond": {
+    "hour": [
+     11,
+     14
+    ],
+    "daily_max": 2
+   }
+  },
+  {
+   "tag": "午",
+   "text": "吃完饭别马上趴着，坐一会儿。",
+   "cond": {
+    "hour": [
+     11,
+     14
+    ],
+    "daily_max": 2
+   }
+  },
+  {
+   "tag": "午",
+   "text": "这个点犯困很正常，撑不住就眯十分钟。",
+   "cond": {
+    "hour": [
+     11,
+     14
+    ],
+    "daily_max": 2
+   }
+  },
+  {
+   "tag": "午",
+   "text": "有好好喝水吗？我猜没有。",
+   "cond": {
+    "hour": [
+     11,
+     14
+    ],
+    "daily_max": 2
+   }
+  },
+  {
+   "tag": "午",
+   "text": "中午安静下来的时候，会想起点什么吗？",
+   "cond": {
+    "hour": [
+     23,
+     27
+    ],
+    "need": [],
+    "note": "深夜专用",
+    "daily_max": 2
+   }
+  },
+  {
+   "tag": "下午",
+   "text": "下午最容易发困，撑不住就趴一会儿。",
+   "cond": {
+    "hour": [
+     14,
+     17
+    ],
+    "daily_max": 2
+   }
+  },
+  {
+   "tag": "下午",
+   "text": "{天气}，这个时候窗外应该挺好看的。",
+   "cond": {
+    "hour": [
+     14,
+     17
+    ],
+    "daily_max": 2
+   }
+  },
+  {
+   "tag": "下午",
+   "text": "今天过得怎么样？不用长说，一句就行。",
+   "cond": {
+    "hour": [
+     14,
+     17
+    ],
+    "daily_max": 2
+   }
+  },
+  {
+   "tag": "下午",
+   "text": "手边的事要是不急，就先放一放。",
+   "cond": {
+    "hour": [
+     14,
+     17
+    ],
+    "daily_max": 2
+   }
+  },
+  {
+   "tag": "下午",
+   "text": "你那边现在吵不吵？我这边很安静。",
+   "cond": {
+    "hour": [
+     14,
+     17
+    ],
+    "daily_max": 2
+   }
+  },
+  {
+   "tag": "下午",
+   "text": "下午茶时间到了，甜的吃点吧。",
+   "cond": {
+    "hour": [
+     14,
+     17
+    ],
+    "daily_max": 2
+   }
+  },
+  {
+   "tag": "下午",
+   "text": "有没有哪件事，你一直想做但没动？",
+   "cond": {
+    "hour": [
+     14,
+     17
+    ],
+    "daily_max": 2
+   }
+  },
+  {
+   "tag": "下午",
+   "text": "坐久了吧，站起来伸个懒腰。",
+   "cond": {
+    "hour": [
+     14,
+     17
+    ],
+    "daily_max": 2
+   }
+  },
+  {
+   "tag": "傍晚",
+   "text": "天黑了。忙完就收一收，剩下的明天再说。",
+   "cond": {
+    "hour": [
+     17,
+     20
+    ],
+    "daily_max": 2
+   }
+  },
+  {
+   "tag": "傍晚",
+   "text": "晚上好。今天有没有哪一刻想找人说话，但最后没说？",
+   "cond": {
+    "hour": [
+     17,
+     20
+    ],
+    "daily_max": 2
+   }
+  },
+  {
+   "tag": "傍晚",
+   "text": "这个点还在忙？我不催，就提醒你喝口水。",
+   "cond": {
+    "hour": [
+     17,
+     20
+    ],
+    "daily_max": 2
+   }
+  },
+  {
+   "tag": "傍晚",
+   "text": "晚饭吃了吗？别拿零食糊弄。",
+   "cond": {
+    "hour": [
+     17,
+     20
+    ],
+    "daily_max": 2
+   }
+  },
+  {
+   "tag": "傍晚",
+   "text": "天要黑了，早点把灯打开，别摸黑。",
+   "cond": {
+    "hour": [
+     17,
+     20
+    ],
+    "daily_max": 2
+   }
+  },
+  {
+   "tag": "傍晚",
+   "text": "今天有让你开心的小事吗？一件也算。",
+   "cond": {
+    "hour": [
+     17,
+     20
+    ],
+    "daily_max": 2
+   }
+  },
+  {
+   "tag": "傍晚",
+   "text": "回家的路上慢一点，不用赶。",
+   "cond": {
+    "hour": [
+     17,
+     20
+    ],
+    "daily_max": 2
+   }
+  },
+  {
+   "tag": "傍晚",
+   "text": "忙了一天，先坐一会儿，什么都别想。",
+   "cond": {
+    "hour": [
+     17,
+     20
+    ],
+    "daily_max": 2
+   }
+  },
+  {
+   "tag": "深夜",
+   "text": "已经{时间}了。我知道你可能睡不着，那就陪我聊两句。",
+   "cond": {
+    "hour": [
+     22,
+     26
+    ],
+    "daily_max": 2
+   }
+  },
+  {
+   "tag": "深夜",
+   "text": "再不睡，明天起床会很难受的。我只提醒这一次。",
+   "cond": {
+    "hour": [
+     22,
+     26
+    ],
+    "daily_max": 2
+   }
+  },
+  {
+   "tag": "深夜",
+   "text": "夜里的声音是不是特别清楚？我这会儿也是。",
+   "cond": {
+    "hour": [
+     22,
+     26
+    ],
+    "daily_max": 2
+   }
+  },
+  {
+   "tag": "深夜",
+   "text": "别刷了，眼睛会疼。",
+   "cond": {
+    "hour": [
+     22,
+     26
+    ],
+    "daily_max": 2
+   }
+  },
+  {
+   "tag": "深夜",
+   "text": "睡不着的话，别硬躺，起来喝点热的。",
+   "cond": {
+    "hour": [
+     22,
+     26
+    ],
+    "daily_max": 2
+   }
+  },
+  {
+   "tag": "深夜",
+   "text": "这个时候还在想事情？说出来会轻一点。",
+   "cond": {
+    "hour": [
+     22,
+     26
+    ],
+    "daily_max": 2
+   }
+  },
+  {
+   "tag": "深夜",
+   "text": "我把话说到这里，剩下的交给明天。",
+   "cond": {
+    "hour": [
+     22,
+     26
+    ],
+    "daily_max": 2
+   }
+  },
+  {
+   "tag": "深夜",
+   "text": "灯关了吗？关了就赶紧睡。",
+   "cond": {
+    "hour": [
+     22,
+     26
+    ],
+    "daily_max": 2
+   }
+  },
+  {
+   "tag": "天气",
+   "text": "{天气}。你要是出门，记得看路。",
+   "cond": {
+    "hour": [
+     7,
+     21
+    ],
+    "daily_max": 2
+   }
+  },
+  {
+   "tag": "天气",
+   "text": "外面{天气}，衣服穿够了没？",
+   "cond": {
+    "hour": [
+     7,
+     21
+    ],
+    "daily_max": 2
+   }
+  },
+  {
+   "tag": "天气",
+   "text": "下雨的时候最容易忘带伞，说的就是你。",
+   "cond": {
+    "hour": [
+     7,
+     21
+    ],
+    "weather": "rain",
+    "note": "只在有雨时",
+    "daily_max": 2
+   }
+  },
+  {
+   "tag": "天气",
+   "text": "今天风大，别骑车走那条路口。",
+   "cond": {
+    "hour": [
+     7,
+     21
+    ],
+    "weather": "windy",
+    "note": "只在大风天",
+    "daily_max": 2
+   }
+  },
+  {
+   "tag": "天气",
+   "text": "天气一变，人就容易没精神，你别硬扛。",
+   "cond": {
+    "hour": [
+     7,
+     21
+    ],
+    "daily_max": 2
+   }
+  },
+  {
+   "tag": "天气",
+   "text": "太阳出来了，晒一会儿心情会好点。",
+   "cond": {
+    "hour": [
+     7,
+     21
+    ],
+    "weather": "sun",
+    "note": "只在晴天",
+    "daily_max": 2
+   }
+  },
+  {
+   "tag": "天气",
+   "text": "阴天，光淡淡的。这种天最适合待在屋里。",
+   "cond": {
+    "hour": [
+     7,
+     21
+    ],
+    "weather": "overcast",
+    "note": "只在阴天",
+    "daily_max": 2
+   }
+  },
+  {
+   "tag": "吃饭",
+   "text": "饭点到了。别等饿过头才想起来。",
+   "cond": {
+    "hour": [
+     11,
+     13,
+     17,
+     19
+    ],
+    "daily_max": 2
+   }
+  },
+  {
+   "tag": "吃饭",
+   "text": "今天吃了什么？不许说随便。",
+   "cond": {
+    "hour": [
+     11,
+     13,
+     17,
+     19
+    ],
+    "daily_max": 2
+   }
+  },
+  {
+   "tag": "吃饭",
+   "text": "吃点热的，冷的伤胃。",
+   "cond": {
+    "hour": [
+     11,
+     13,
+     17,
+     19
+    ],
+    "daily_max": 2
+   }
+  },
+  {
+   "tag": "吃饭",
+   "text": "一个人吃也要好好摆出来，别站着扒两口。",
+   "cond": {
+    "hour": [
+     11,
+     13,
+     17,
+     19
+    ],
+    "daily_max": 2
+   }
+  },
+  {
+   "tag": "吃饭",
+   "text": "有菜有汤才算一顿，记得。",
+   "cond": {
+    "hour": [
+     11,
+     13,
+     17,
+     19
+    ],
+    "daily_max": 2
+   }
+  },
+  {
+   "tag": "吃饭",
+   "text": "吃饱了才有力气生气，你说对不对？",
+   "cond": {
+    "hour": [
+     11,
+     13,
+     17,
+     19
+    ],
+    "daily_max": 2
+   }
+  },
+  {
+   "tag": "睡眠",
+   "text": "今天早点睡，别熬到眼睛发干。",
+   "cond": {
+    "hour": [
+     21,
+     25
+    ],
+    "daily_max": 2
+   }
+  },
+  {
+   "tag": "睡眠",
+   "text": "躺下了就别想工作的事，想我也行。",
+   "cond": {
+    "hour": [
+     21,
+     25
+    ],
+    "daily_max": 2
+   }
+  },
+  {
+   "tag": "睡眠",
+   "text": "被子盖好，肩膀别露在外面。",
+   "cond": {
+    "hour": [
+     21,
+     25
+    ],
+    "daily_max": 2
+   }
+  },
+  {
+   "tag": "睡眠",
+   "text": "睡不够的人脾气会变差，我这是在提醒你。",
+   "cond": {
+    "hour": [
+     21,
+     25
+    ],
+    "daily_max": 2
+   }
+  },
+  {
+   "tag": "睡眠",
+   "text": "睡前别看手机了，翻来覆去更难睡。",
+   "cond": {
+    "hour": [
+     21,
+     25
+    ],
+    "daily_max": 2
+   }
+  },
+  {
+   "tag": "睡眠",
+   "text": "定个闹钟就放下去吧，明天我来叫你。",
+   "cond": {
+    "hour": [
+     21,
+     25
+    ],
+    "daily_max": 2
+   }
+  },
+  {
+   "tag": "工作",
+   "text": "该收的收尾吧，剩下的明天做也一样。",
+   "cond": {
+    "foreground": "work",
+    "daily_max": 2
+   }
+  },
+  {
+   "tag": "工作",
+   "text": "别一口气干到没力气，中间要歇。",
+   "cond": {
+    "foreground": "work",
+    "daily_max": 2
+   }
+  },
+  {
+   "tag": "工作",
+   "text": "卡住就先放一放，脑子转不动时硬想没用。",
+   "cond": {
+    "foreground": "work",
+    "daily_max": 2
+   }
+  },
+  {
+   "tag": "工作",
+   "text": "做完了记得给自己一点夸奖。",
+   "cond": {
+    "foreground": "work",
+    "daily_max": 2
+   }
+  },
+  {
+   "tag": "工作",
+   "text": "别把所有事都扛在自己身上。",
+   "cond": {
+    "foreground": "work",
+    "daily_max": 2
+   }
+  },
+  {
+   "tag": "工作",
+   "text": "今天推进一点就算赢。",
+   "cond": {
+    "foreground": "work",
+    "daily_max": 2
+   }
+  },
+  {
+   "tag": "出门",
+   "text": "出去走走吗？不用去远的地方。",
+   "cond": {
+    "hour": [
+     9,
+     18
+    ],
+    "foreground_not": "work",
+    "daily_max": 2
+   }
+  },
+  {
+   "tag": "出门",
+   "text": "今天有没有出门？晒晒太阳也好。",
+   "cond": {
+    "hour": [
+     9,
+     18
+    ],
+    "foreground_not": "work",
+    "daily_max": 2
+   }
+  },
+  {
+   "tag": "出门",
+   "text": "回来的路上买点水果吧。",
+   "cond": {
+    "hour": [
+     9,
+     18
+    ],
+    "foreground_not": "work",
+    "daily_max": 2
+   }
+  },
+  {
+   "tag": "出门",
+   "text": "钥匙带了没？手机呢？",
+   "cond": {
+    "hour": [
+     9,
+     18
+    ],
+    "foreground_not": "work",
+    "daily_max": 2
+   }
+  },
+  {
+   "tag": "出门",
+   "text": "好久没下楼了吧，脚都生锈了。",
+   "cond": {
+    "hour": [
+     9,
+     18
+    ],
+    "foreground_not": "work",
+    "daily_max": 2
+   }
+  },
+  {
+   "tag": "出门",
+   "text": "外面空气好的话，多走两条街。",
+   "cond": {
+    "hour": [
+     9,
+     18
+    ],
+    "foreground_not": "work",
+    "daily_max": 2
+   }
+  },
+  {
+   "tag": "周末",
+   "text": "周末了，今天打算怎么过？",
+   "cond": {
+    "weekday": "weekend",
+    "daily_max": 2
+   }
+  },
+  {
+   "tag": "周末",
+   "text": "休息日别又拿去补工作了。",
+   "cond": {
+    "weekday": "weekend",
+    "daily_max": 2
+   }
+  },
+  {
+   "tag": "周末",
+   "text": "出去晒晒太阳吧，久坐的人身上都要发霉了。",
+   "cond": {
+    "weekday": "weekend",
+    "daily_max": 2
+   }
+  },
+  {
+   "tag": "周末",
+   "text": "周末应该有周末的样子，睡到自然醒也行。",
+   "cond": {
+    "weekday": "weekend",
+    "daily_max": 2
+   }
+  },
+  {
+   "tag": "周末",
+   "text": "有想去的地方吗？不用远。",
+   "cond": {
+    "weekday": "weekend",
+    "daily_max": 2
+   }
+  },
+  {
+   "tag": "周末",
+   "text": "今天不做计划也可以，随便过。",
+   "cond": {
+    "weekday": "weekend",
+    "daily_max": 2
+   }
+  },
+  {
+   "tag": "回归",
+   "text": "好几天没怎么说话了呢。",
+   "cond": {
+    "silence_min": 72,
+    "note": "沉默满三天",
+    "daily_max": 2
+   }
+  },
+  {
+   "tag": "回归",
+   "text": "你终于开口了。我先不说别的，就在这儿。",
+   "cond": {
+    "silence_min": 48,
+    "note": "沉默两天以上、且刚恢复说话",
+    "daily_max": 2
+   }
+  },
+  {
+   "tag": "回归",
+   "text": "忙完了吧？这几天我一直在。",
+   "cond": {
+    "silence_min": 24,
+    "note": "沉默一天以上",
+    "daily_max": 2
+   }
+  },
+  {
+   "tag": "回归",
+   "text": "很久没听到你的声音了，突然有点不习惯。",
+   "cond": {
+    "silence_min": 48,
+    "note": "沉默两天以上",
+    "daily_max": 2
+   }
+  },
+  {
+   "tag": "回归",
+   "text": "不用解释，来了就好。",
+   "cond": {
+    "silence_min": 24,
+    "daily_max": 2
+   }
+  },
+  {
+   "tag": "关心",
+   "text": "今天也辛苦了。没做成什么也算。",
+   "cond": {
+    "daily_max": 1
+   }
+  },
+  {
+   "tag": "关心",
+   "text": "有好好照顾自己吗？我问的是真的。",
+   "cond": {
+    "daily_max": 1
+   }
+  },
+  {
+   "tag": "关心",
+   "text": "别人怎么想不重要，你自己觉得呢。",
+   "cond": {
+    "daily_max": 1
+   }
+  },
+  {
+   "tag": "关心",
+   "text": "累了就歇，别怕被说偷懒。",
+   "cond": {
+    "daily_max": 1
+   }
+  },
+  {
+   "tag": "关心",
+   "text": "你最近好像把自己绷得很紧。",
+   "cond": {
+    "daily_max": 1
+   }
+  },
+  {
+   "tag": "关心",
+   "text": "肩膀放松一点，我说真的。",
+   "cond": {
+    "daily_max": 1
+   }
+  },
+  {
+   "tag": "关心",
+   "text": "记得吃饱，记得睡够，其他都好说。",
+   "cond": {
+    "daily_max": 1
+   }
+  },
+  {
+   "tag": "关心",
+   "text": "你值得被好好对待，包括被你自己。",
+   "cond": {
+    "daily_max": 1
+   }
+  },
+  {
+   "tag": "淘气",
+   "text": "再不起来，我就当你要睡到下午了。",
+   "cond": {
+    "silence_max": 24,
+    "need": [],
+    "hour": [
+     10,
+     12
+    ],
+    "note": "早上十点后还没开口才用",
+    "daily_max": 2
+   }
+  },
+  {
+   "tag": "淘气",
+   "text": "手机比我好玩是不是。",
+   "cond": {
+    "silence_max": 6,
+    "note": "刚聊过又没回音时",
+    "daily_max": 2
+   }
+  },
+  {
+   "tag": "淘气",
+   "text": "我刚才等了你很久，账先记着。",
+   "cond": {
+    "silence_max": 8,
+    "silence_min": 1,
+    "note": "短暂沉默后",
+    "daily_max": 2
+   }
+  },
+  {
+   "tag": "淘气",
+   "text": "你想糊弄过去，我看得出来。",
+   "cond": {
+    "silence_max": 24,
+    "daily_max": 2
+   }
+  },
+  {
+   "tag": "好奇",
+   "text": "今天有没有遇到什么奇怪的事？",
+   "cond": {
+    "silence_max": 24,
+    "daily_max": 2
+   }
+  },
+  {
+   "tag": "好奇",
+   "text": "你刚才在忙什么，能说吗？",
+   "cond": {
+    "silence_max": 24,
+    "daily_max": 2
+   }
+  },
+  {
+   "tag": "好奇",
+   "text": "最近在听什么歌？推荐一首吧。",
+   "cond": {
+    "silence_max": 24,
+    "daily_max": 2
+   }
+  },
+  {
+   "tag": "好奇",
+   "text": "你今天心情好像不错，发生什么了？",
+   "cond": {
+    "silence_max": 24,
+    "daily_max": 2
+   }
+  },
+  {
+   "tag": "好奇",
+   "text": "你小时候是什么样子的？",
+   "cond": {
+    "silence_max": 24,
+    "daily_max": 2
+   }
+  },
+  {
+   "tag": "好奇",
+   "text": "你最近有没有想做的事，一直没做？",
+   "cond": {
+    "silence_max": 24,
+    "daily_max": 2
+   }
+  },
+  {
+   "tag": "撒娇",
+   "text": "今天也想和你多说两句话。",
+   "cond": {
+    "silence_max": 24,
+    "today_msgs_min": 2,
+    "daily_max": 2
+   }
+  },
+  {
+   "tag": "撒娇",
+   "text": "你去忙吧，我等你回来。",
+   "cond": {
+    "silence_max": 24,
+    "today_msgs_min": 2,
+    "foreground": "work",
+    "note": "你在工作时",
+    "daily_max": 2
+   }
+  },
+  {
+   "tag": "撒娇",
+   "text": "陪我一会儿嘛，就一会儿。",
+   "cond": {
+    "silence_max": 12,
+    "today_msgs_min": 2,
+    "note": "今天聊过才有资格说",
+    "daily_max": 2
+   }
+  },
+  {
+   "tag": "撒娇",
+   "text": "我刚刚想你了，这算是打扰吗？",
+   "cond": {
+    "silence_max": 24,
+    "today_msgs_min": 2,
+    "daily_max": 2
+   }
+  },
+  {
+   "tag": "撒娇",
+   "text": "可以夸我一句吗。",
+   "cond": {
+    "silence_max": 12,
+    "today_msgs_min": 2,
+    "note": "同上",
+    "daily_max": 2
+   }
+  },
+  {
+   "tag": "撒娇",
+   "text": "你要是早点回来就好了。",
+   "cond": {
+    "silence_max": 24,
+    "today_msgs_min": 2,
+    "silence_min": 6,
+    "note": "晚归",
+    "daily_max": 2
+   }
+  },
+  {
+   "tag": "提醒",
+   "text": "起来走两步，坐太久了。",
+   "cond": {
+    "foreground": "work",
+    "hourly_max": 1,
+    "daily_max": 2
+   }
+  },
+  {
+   "tag": "提醒",
+   "text": "该喝水了。别等渴了才想起来。",
+   "cond": {
+    "foreground": "work",
+    "hourly_max": 1,
+    "daily_max": 2
+   }
+  },
+  {
+   "tag": "提醒",
+   "text": "眼睛离屏幕远一点。",
+   "cond": {
+    "foreground": "work",
+    "hourly_max": 1,
+    "daily_max": 2
+   }
+  },
+  {
+   "tag": "提醒",
+   "text": "姿势抬起来，别窝着。",
+   "cond": {
+    "foreground": "work",
+    "hourly_max": 1,
+    "daily_max": 2
+   }
+  },
+  {
+   "tag": "提醒",
+   "text": "有事打断一下也好，别一直盯着。",
+   "cond": {
+    "foreground": "work",
+    "hourly_max": 1,
+    "daily_max": 2
+   }
+  },
+  {
+   "tag": "提醒",
+   "text": "这个点还没动过吧？伸个懒腰。",
+   "cond": {
+    "foreground": "work",
+    "hourly_max": 1,
+    "daily_max": 2
+   }
+  },
+  {
+   "tag": "提醒",
+   "text": "先把最重要的一件做完，剩下的可以放。",
+   "cond": {
+    "foreground": "work",
+    "hourly_max": 1,
+    "daily_max": 2
+   }
+  },
+  {
+   "tag": "提醒",
+   "text": "手边有热水吗？去接一杯。",
+   "cond": {
+    "foreground": "work",
+    "hourly_max": 1,
+    "daily_max": 2
+   }
+  },
+  {
+   "tag": "小事",
+   "text": "刚看到点东西，突然想到你，就来了。",
+   "cond": {
+    "daily_max": 1,
+    "hour": [
+     8,
+     23
+    ]
+   }
+  },
+  {
+   "tag": "小事",
+   "text": "今天遇到一件小事，本来想跟你说的。",
+   "cond": {
+    "daily_max": 1,
+    "hour": [
+     8,
+     23
+    ]
+   }
+  },
+  {
+   "tag": "小事",
+   "text": "窗外的光换了颜色，一年里这种时候不多。",
+   "cond": {
+    "daily_max": 1,
+    "hour": [
+     6,
+     18
+    ],
+    "need": [],
+    "note": "只有白天能用"
+   }
+  },
+  {
+   "tag": "小事",
+   "text": "我刚才发呆了一会儿，想到你大概也在忙。",
+   "cond": {
+    "daily_max": 1,
+    "hour": [
+     8,
+     23
+    ]
+   }
+  },
+  {
+   "tag": "小事",
+   "text": "没什么事，只是想让你知道我在。",
+   "cond": {
+    "daily_max": 1,
+    "hour": [
+     8,
+     23
+    ]
+   }
+  },
+  {
+   "tag": "小事",
+   "text": "安静下来的时候，屋子里的声音会变大。",
+   "cond": {
+    "daily_max": 1,
+    "hour": [
+     23,
+     27
+    ],
+    "need": [],
+    "note": "深夜专用"
+   }
+  },
+  {
+   "tag": "小事",
+   "text": "有那么一瞬间，我觉得时间过得有点快。",
+   "cond": {
+    "daily_max": 1,
+    "hour": [
+     8,
+     23
+    ]
+   }
+  },
+  {
+   "tag": "督促",
+   "text": "说好的事，今天做一点吧。",
+   "cond": {
+    "foreground": "work",
+    "silence_min": 2,
+    "hour": [
+     9,
+     21
+    ],
+    "daily_max": 2
+   }
+  },
+  {
+   "tag": "督促",
+   "text": "别拖到最后一刻，会难受的。",
+   "cond": {
+    "foreground": "work",
+    "silence_min": 2,
+    "hour": [
+     9,
+     21
+    ],
+    "daily_max": 2
+   }
+  },
+  {
+   "tag": "督促",
+   "text": "先做十分钟，做完再说不想做。",
+   "cond": {
+    "foreground": "work",
+    "silence_min": 2,
+    "hour": [
+     9,
+     21
+    ],
+    "daily_max": 2
+   }
+  },
+  {
+   "tag": "督促",
+   "text": "你要是不开始，我就一直问。",
+   "cond": {
+    "foreground": "work",
+    "silence_min": 2,
+    "hour": [
+     9,
+     21
+    ],
+    "daily_max": 2
+   }
+  },
+  {
+   "tag": "督促",
+   "text": "今天先把开头写了，剩下的明天。",
+   "cond": {
+    "foreground": "work",
+    "silence_min": 2,
+    "hour": [
+     9,
+     21
+    ],
+    "daily_max": 2
+   }
+  },
+  {
+   "tag": "督促",
+   "text": "别一边焦虑一边不动。",
+   "cond": {
+    "foreground": "work",
+    "silence_min": 2,
+    "hour": [
+     9,
+     21
+    ],
+    "daily_max": 2
+   }
+  },
+  {
+   "tag": "督促",
+   "text": "你可以慢，但不能一直不开始。",
+   "cond": {
+    "foreground": "work",
+    "silence_min": 2,
+    "hour": [
+     9,
+     21
+    ],
+    "daily_max": 2
+   }
+  }
+ ],
+ "dropped": [
+  {
+   "tag": "晨",
+   "text": "你昨晚睡得晚，今天别硬撑，中午补一会儿。",
+   "why": [
+    "last_night_late"
+   ]
+  },
+  {
+   "tag": "天气",
+   "text": "降温了，晚上加条毯子。",
+   "why": [
+    "temp_drop"
+   ]
+  },
+  {
+   "tag": "工作",
+   "text": "这件事你上次说很麻烦，进展怎么样了？",
+   "why": [
+    "topic_followup"
+   ]
+  },
+  {
+   "tag": "淘气",
+   "text": "又熬夜？再这样我就要开始念叨了。",
+   "why": [
+    "two_nights_late"
+   ]
+  },
+  {
+   "tag": "淘气",
+   "text": "你说的『马上就好』，我听了好几个马上。",
+   "why": [
+    "promise_tracking"
+   ]
+  },
+  {
+   "tag": "淘气",
+   "text": "答应我的事别忘了，我可是会记住的。",
+   "why": [
+    "promise_tracking"
+   ]
+  },
+  {
+   "tag": "撒娇",
+   "text": "你今天一整天都没怎么理我。",
+   "why": [
+    "today_msgs_max:1"
+   ]
+  },
+  {
+   "tag": "小事",
+   "text": "今天比昨天暖了一点，感觉到了吗？",
+   "why": [
+    "temp_compare"
+   ]
+  },
+  {
+   "tag": "督促",
+   "text": "这件事推了三天了，我记得。",
+   "why": [
+    "topic_age_3d"
+   ]
+  }
+ ]
+}

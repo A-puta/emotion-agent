@@ -1,0 +1,15 @@
+﻿{
+    "nightHeld":  false,
+    "todayDate":  "",
+    "missingPhase":  false,
+    "todayCount":  0,
+    "lastTag":  null,
+    "recent":  [
+
+               ],
+    "lastChideAt":  null,
+    "silenceBase":  null,
+    "lastDecision":  "",
+    "nextEligibleAt":  null,
+    "lastSentAt":  null
+}

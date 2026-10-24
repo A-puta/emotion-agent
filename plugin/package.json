@@ -1,0 +1,33 @@
+﻿{
+    "name":  "dsh-jieyi-persona",
+    "version":  "0.1.0",
+    "private":  true,
+    "type":  "module",
+    "description":  "增添了多种性格的个性插件，让语段中杂糅情感",
+    "main":  "lib/index.js",
+    "exports":  {
+                    ".":  "./lib/index.js",
+                    "./cordis.patch.yml":  "./cordis.patch.yml",
+                    "./package.json":  "./package.json"
+                },
+    "engines":  {
+                    "node":  "\u003e=22.19"
+                },
+    "files":  [
+                  "lib",
+                  "locale",
+                  "assets",
+                  "cordis.patch.yml"
+              ],
+    "license":  "MIT",
+    "peerDependenciesMeta":  {
+                                 "@deepseek-ai/cordis":  {
+                                                             "optional":  true
+                                                         }
+                             },
+    "dsh":  {
+                "bundle":  {
+                               "patch":  "./cordis.patch.yml"
+                           }
+            }
+}

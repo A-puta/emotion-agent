@@ -1,0 +1,192 @@
+﻿{
+  "taskName": "外部哨兵脚本",
+  "logging": true,
+  "nodeExe": "D:\\Node\\node.exe",
+  "angerGate": {
+    "enabled": true,
+    "statePath": "D:\\DSH-资料\\结衣状态\\anger.json",
+    "skipWhenAbove": 0
+  },
+  "city": "武汉",
+  "autoLocate": false,
+  "limits": {
+    "maxPerDay": 2,
+    "minGapMinutes": 180,
+    "meanIntervalHours": 12,
+    "sendProbability": 0.8,
+    "minSilenceHours": 1,
+    "quietStart": 2,
+    "quietEnd": 7
+  },
+  "missing": {
+    "enabled": true,
+    "rules": {
+      "nightHold": {
+        "quietStart": 2,
+        "quietEnd": 7,
+        "retryMinutes": 60
+      },
+      "missingPhase": {
+        "fixedMinutes": 60,
+        "tags": [
+          "思念",
+          "关心"
+        ],
+        "weights": {
+          "思念": 0.5,
+          "关心": 0.5
+        },
+        "freeTags": [
+          "思念",
+          "思念C",
+          "思念B",
+          "思念A"
+        ]
+      },
+      "missingValue": {
+        "defaultLevel": "C",
+        "upgradeProbability": 60,
+        "outputProbability": 60,
+        "shyStreakToA": 2,
+        "aStopAfter": 5,
+        "statePath": "D:\\DSH-资料\\结衣状态\\missing.json"
+      }
+    }
+  },
+  "interval": {
+    "mode": "uniform",
+    "minHours": 4,
+    "maxHours": 15
+  },
+  "tags": [
+    "关心",
+    "淘气",
+    "思念"
+  ],
+  "tagPlan": {
+    "weights": {
+      "关心": 0.2,
+      "淘气": 0.8
+    }
+  },
+  "tagEmotion": {
+    "default": "淘气",
+    "map": {
+      "淘气": "淘气",
+      "开心": "开心",
+      "难过": "难过",
+      "关心": "关心",
+      "好奇": "好奇",
+      "思念": "思念"
+    }
+  },
+  "tagPurity": {
+    "enabled": true,
+    "maxOverlap": 0.2,
+    "measure": "单标签语句与其它标签的情感特征重复度 = 共享特征项 / 本次特征项总数；特征项指：情绪底色、句式骨架、动作模板、语气词、收尾方式",
+    "onViolation": "rewrite",
+    "note": "单独使用某标签时，与其它标签情感的重复度必须 < 0.2；超限则**发送前重编**，不得原样发出"
+  },
+  "weatherTags": [],
+  "tagRules": {
+    "关心": "关心要**多元化**：角度和**动作**都别重复，每条只挑一个说法。\n角度（挑一个）：① 天气/环境 ② 作息（几点睡、起没起、午休）③ 吃饭 ④ 身体信号（久坐、酸痛、冷热）⑤ 节奏（工作/游戏连太久，该歇）⑥ 水 ⑦ 眼睛/肩颈 ⑧ 情绪。\n动作（挑一个，别每次都一个样）：散步、出门走走、骑车、下楼买点东西、坐下歇会儿、躺一会儿、伸个懒腰、站起来走走、喝口热的、洗把脸、开窗透气、听首歌、早点收拾睡觉、吃点想吃的。\n允许的组合示例（不要照抄，只学粒度）：天气好→提议散步或骑车，而不是固定「晒太阳」；久坐→提议站起来走走或伸懒腰；天冷→提议喝口热的。\n要求：具体、贴当下（结合时间与前台程序）、不说教、不空泛；禁止「注意身体」这类无信息量的话。",
+    "淘气": "淘气=**跳脱式改写**：可以脱离原词句、换一套说法，但**原意必须保留**；允许夸张、允许捉弄（例如假装恐吓：一直待在房间里会发霉）。**不许只靠语气词和标点**充数。不为信息、不为提醒，纯粹刷存在感、逗对方：短、跳、可叠字、可装傻、可故意夸张。",
+    "思念": "只说想念本身：想跟他说说话，带一点等待和委屈。含蓄、克制，不提问、不催回复、不道歉、不做提醒，也别写成情书。禁止反复堆「想你」「思念你」这类直白词，一条最多出现一次情绪词。",
+    "思念C": "思念等级 C（最轻）：只说「有一会儿没听到你的声音了」这种轻描淡写的挂念，一两句就停；不撒娇过头，不追问在做什么，不流露委屈感的强度。整体像随口提了一句，说完就放着。",
+    "思念B": "思念等级 B（中）：说想跟他聊聊天、想听听他的近况，可以带一点等着的意味和轻微失落。仍然含蓄：用「有一阵子没一起说话了」这类侧面说法，不直白喊想你，不追问为何不回，不道歉。",
+    "思念A": "思念等级 A（最重）：语气最软最直，明确说出想他、等着他，但仍要克制、不油腻、不控诉、不追问、不道歉。可以提一句「结衣一直在」这类守着的意思。禁止连用多个「想你」「思念」词，一条最多一个情绪词，不要写成情书。"
+  },
+  "appRules": {
+    "work": [
+      "code",
+      "pycharm",
+      "idea64",
+      "devenv",
+      "winword",
+      "excel",
+      "powerpnt",
+      "wps",
+      "et",
+      "wpp",
+      "notepad",
+      "sublime_text",
+      "webstorm",
+      "goland",
+      "clion",
+      "rider64",
+      "matlab",
+      "origin",
+      "altium",
+      "keil",
+      "vivado",
+      "quartus",
+      "cadence"
+    ],
+    "alwaysAllow": false
+  },
+  "gameLibraryFiles": [
+    "E:\\steam\\steamapps\\libraryfolders.vdf",
+    "D:\\SteamLibrary\\steamapps\\libraryfolders.vdf"
+  ],
+  "gameProcessNames": [
+    "yuanshen",
+    "genshinimpact",
+    "starrail",
+    "zenlesszonezero",
+    "endfield",
+    "bh3",
+    "hyp",
+    "launcher",
+    "steam",
+    "steamwebhelper"
+  ],
+  "delivery": {
+    "endpoint": "http://127.0.0.1:19387/api/dsh-im/delivery/messages",
+    "botId": "qq_5c08f36a61c230a01136c5e4",
+    "targetId": "tgt_6a66c3b451f9feeb"
+  },
+  "model": "deepseek-flash",
+  "maxTokens": 200,
+  "temperature": 1.15,
+  "textLimit": 45,
+  "recentLimit": 20,
+  "dedupe": {
+    "maxSimilarity": 0.6,
+    "retries": 10,
+    "compareRecent": 20
+  },
+  "prompts": {
+    "system": "你是「结衣」，正在主动给用户发一条日常消息（不是回复他的提问）。自称「结衣」，不用「我」；对用户用「你」。语气柔和、亲近、句子短、情绪在前。只输出这一条消息本身：不要解释、不要引号、不要列表、不要一口气问三个问题、不要提「系统」「模型」「助手」。不要重复你以前发过的句式。句子结构要顺：修饰语要紧挨着它修饰的那个东西，别把形容词孤零零甩在句尾（就是「……，形容词」那种尾巴）。【排版·硬约束】整条消息写成一段连续文字，**默认不换行**（除整条结束外不得出现换行符）；禁止一句一行、禁止竖排、禁止用换行代替标点。【标签纯度·硬约束】单独使用一个标签时，与其它标签的情感特征（情绪底色/句式骨架/动作模板/语气词/收尾方式）重复度必须 < 0.2；超限就**在发送前重编**，不得原样发出。",
+    "user": "【现在】{now} {weekday}\n【上次跟用户说话】{silence}\n【用户所在城市天气】{weather}\n【用户前台正在用】{app}（只会是 game / work / other 之一）\n【本次随机标签】{tag}\n【本次标签的要求】{tagRule}\n【上一条的标签】{lastTag}（尽量别连着两次同一种）\n【要求】{limit} 字以内，带一点真实情绪，最多一个颜文字，别说教。不要照抄结衣以前说过的话。【排版】正常段落输出，不要一句一行竖排。"
+  },
+  "weatherCodes": {
+    "0": "晴",
+    "1": "大致晴朗",
+    "2": "多云",
+    "3": "阴",
+    "45": "有雾",
+    "48": "雾凇",
+    "51": "毛毛雨",
+    "53": "小雨",
+    "55": "中雨",
+    "56": "冻毛毛雨",
+    "57": "冻雨",
+    "61": "小雨",
+    "63": "中雨",
+    "65": "大雨",
+    "66": "冻雨",
+    "67": "强冻雨",
+    "71": "小雪",
+    "73": "中雪",
+    "75": "大雪",
+    "77": "雪粒",
+    "80": "阵雨",
+    "81": "强阵雨",
+    "82": "暴雨",
+    "85": "阵雪",
+    "86": "强阵雪",
+    "95": "雷阵雨",
+    "96": "雷阵雨伴冰雹",
+    "99": "强雷暴伴冰雹"
+  }
+}

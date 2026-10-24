@@ -1,0 +1,9 @@
+{
+  "logging": true,
+  "statePath": "D:\\DSH-资料\\结衣状态\\anger.json",
+  "minAnger": -1,
+  "maxAnger": 2,
+  "lockMinutes": 30,
+  "peakWindowMinutes": 30,
+  "comfortsAfterLock": 2
+}

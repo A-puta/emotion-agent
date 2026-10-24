@@ -1,0 +1,17 @@
+﻿node_modules/
+venv/
+venv_cosy/
+__pycache__/
+*.log
+*.bak
+*.bak2
+*.bak3
+*.bak4
+state/*.json
+!state/emotion.json
+!state/emotion-mode.json
+!state/missing.json
+!state/sentinel-mode.json
+!state/anger.json
+voice/models/
+voice/work/
