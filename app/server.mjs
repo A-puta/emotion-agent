@@ -137,6 +137,7 @@ const buildSystem = () => {
     '【本轮必须做的事】回复正文写完后，必须在最后单独另起一行，输出一行判定（宿主会抹掉，用户看不到），格式一字不差：',
     '<!--jieyi {"malice":0,"comfort":0,"completeDialogue":0,"resent":0,"forceReset":0,"testTalk":0,"emo":""}-->',
     'emo 只能填「生气／开心／难过／淘气／委屈／疲惫／害羞」其中之一，没有就留空字符串；它是写进情绪槽的唯一入口。',
+    'emo 填的是**这一轮新冒出来的情绪**：槽里已有的不要照抄一遍（你已经生气时，再说一句普通话就该留空，不是继续填「生气」）。',
     'malice=明显辱骂；resent=越过我不想做的边界；comfort=认错服软或夸我；forceReset=用户要求清零。',
     '示例：你夸我聪明时，正文写害羞的话，最后一行必须是 <!--jieyi {"malice":0,"comfort":1,"completeDialogue":0,"resent":0,"forceReset":0,"testTalk":0,"emo":"害羞"}-->',
     '',
@@ -162,10 +163,26 @@ const applyVerdict = async (v) => {
     return done
   }
   await run('emotion.ps1', ['-Tick', '-Session', SESSION], 'tick')
-  if (v.resent && v.malice) await run('anger.ps1', ['-Surge'], 'surge')
-  else if (v.resent) await run('anger.ps1', ['-Trigger'], 'resent')
-  else if (v.malice) await run('anger.ps1', ['-Malice'], 'malice')
-  if (v.comfort) await run('anger.ps1', ['-Comfort'], 'comfort')
+  let provoked = false
+  if (v.resent && v.malice) {
+    await run('anger.ps1', ['-Surge'], 'surge')
+    provoked = true
+  } else if (v.resent) {
+    await run('anger.ps1', ['-Trigger'], 'resent')
+    provoked = true
+  } else if (v.malice) {
+    await run('anger.ps1', ['-Malice'], 'malice')
+    provoked = true
+  }
+  if (v.comfort) {
+    const cur = Number(readState()?.anger?.anger ?? -1)
+    await run('anger.ps1', ['-Comfort'], 'comfort')
+    // 没到顶时，安慰就是普通的「没被激怒的一轮」，还要再降一格
+    if (Number.isFinite(cur) && cur < 2) await run('anger.ps1', ['-Tick'], 'anger-tick')
+    provoked = true
+  }
+  // 这一轮没被激怒 → 怒气按约定衰减一格（最低 -1）
+  if (!provoked && !v.testTalk) await run('anger.ps1', ['-Tick'], 'anger-tick')
   const labels = ['生气', '开心', '难过', '淘气', '委屈', '疲惫', '害羞']
   if (labels.includes(String(v.emo || '').trim())) {
     await run('emotion.ps1', ['-Set', String(v.emo).trim(), '-Session', SESSION], `emo:${v.emo}`)
@@ -306,7 +323,12 @@ const server = createServer(async (req, res) => {
         raw = content
       }
       const { text: reply, verdict } = stripVerdict(raw)
-      const applied = await applyVerdict(verdict)
+      // 模型偶尔不吐判定行：默认按「没被激怒的一轮」处理，保证怒气会衰减
+      const v = verdict || {}
+      // 恶意词做一次确定性兜底，不依赖模型自己申报
+      const MALICE_WORDS = ['傻子', '傻逼', '白痴', '蠢货', '智障', '废物', '笨蛋东西']
+      if (MALICE_WORDS.some((w) => text.includes(w))) v.malice = 1
+      const applied = await applyVerdict(v)
       return send(res, 200, { reply, applied, trace })
     } catch (e) {
       return send(res, 502, { error: String(e.message || e) })
