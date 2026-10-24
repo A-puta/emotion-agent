@@ -1,4 +1,4 @@
-// 结衣控制台 · 零依赖本地服务
+﻿// 结衣控制台 · 零依赖本地服务
 // 读状态文件 + 调已有脚本 + 可选接任意 OpenAI 兼容接口
 import { createServer } from 'node:http'
 import { readFileSync, copyFileSync, writeFileSync, existsSync } from 'node:fs'
@@ -43,22 +43,23 @@ const scheduleProactive = (minMin, maxMin) => {
   }, waitMin * 60000)
 }
 
-const saySomething = async () => {
-  const cfg = loadConfig()
-  const mode = readJson(join(STATE, 'sentinel-mode.json'))?.mode === 'model' ? 'model' : 'library'
-  let text = ''
-  if (mode === 'library') {
-    const out = await runPs('pick_phrase.ps1', ['-Show'])
-    const m = out.match(/^pick:\s*\[(.+?)\]\s*([\s\S]+)$/)
-    text = m ? m[2].trim() : ''
-  } else if (cfg.baseUrl && cfg.model) {
-    try {
-      const r = await callModel(cfg, [
-        { role: 'system', content: buildSystem() + '\n\n现在没人跟你说话，你自己开口说一句日常话，一到两句，不要提问。不要输出判定行。' },
-        { role: 'user', content: '（无消息：现在轮到你主动说话）' },
-      ])
-      text = stripVerdict(r.content || '').text
-    } catch { }
+const saySomething = async (opts = {}) => {
+  // 默认走哨兵脚本自己的判断（沉默门槛、概率、每日上限、思念等级全由它决定）
+  const args = opts.force ? ['-DryRun', '-Force'] : ['-DryRun']
+  const out = await runPs('外部哨兵脚本.ps1', args)
+  const m = out.match(/\[DRYRUN\]\s*would send:\s*(.+)/)
+  let text = m ? m[1].trim() : ''
+  if (!text && opts.modelFallback) {
+    const cfg = loadConfig()
+    if (cfg.baseUrl && cfg.model) {
+      try {
+        const r = await callModel(cfg, [
+          { role: 'system', content: buildSystem() + '\n\n现在没人跟你说话，你自己开口说一句日常话，一到两句，不要提问，不要输出判定行。' },
+          { role: 'user', content: '（无消息：现在轮到你主动说话）' },
+        ])
+        text = stripVerdict(r.content || '').text
+      } catch { }
+    }
   }
   if (!text) return null
   const item = { id: ++proactiveSeq, at: new Date().toISOString(), text }
@@ -529,7 +530,7 @@ const server = createServer(async (req, res) => {
   }
 
   if (p === '/api/proactive/now' && req.method === 'POST') {
-    const item = await saySomething()
+    const item = await saySomething({ force: url.searchParams.get('force') === '1' })
     return send(res, 200, { ok: Boolean(item), item })
   }
 
@@ -599,5 +600,6 @@ server.listen(PORT, '127.0.0.1', () => {
   console.log(cfg.baseUrl && cfg.model && cfg.apiKey ? `模型接口：${cfg.baseUrl} (${cfg.model})` : '模型接口：未配置（面板照常可用）')
   if (!existsSync(CONFIG)) console.log(`提示：把 app/config.example.json 复制成 app/config.json 就能开启对话`)
 })
+
 
 
