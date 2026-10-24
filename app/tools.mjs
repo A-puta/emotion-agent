@@ -158,6 +158,33 @@ export const TOOL_SPECS = [
       },
     },
   },
+  {
+    type: 'function',
+    function: {
+      name: 'remember',
+      description: '记一件事，之后可以回想起来（例如用户说过的话、答应过的事）',
+      parameters: {
+        type: 'object',
+        properties: {
+          text: { type: 'string', description: '要记的一句话，尽量短' },
+          kind: { type: 'string', enum: ['夸我', '怼我', '约定', '心情', '其他'] },
+        },
+        required: ['text'],
+      },
+    },
+  },
+  {
+    type: 'function',
+    function: {
+      name: 'recall',
+      description: '回想最近记下的事',
+      parameters: {
+        type: 'object',
+        properties: { days: { type: 'number', description: '回看最近几天，默认 7' } },
+        required: [],
+      },
+    },
+  },
 ]
 
 export async function runTool(name, args, { scripts, state, mode, root }) {
@@ -257,6 +284,33 @@ export async function runTool(name, args, { scripts, state, mode, root }) {
       const dest = j(deliver, name)
       copyFileSync(p, dest)
       return { ok: true, name, url: `/files/${encodeURIComponent(name)}`, size: statSync(dest).size }
+    }
+    case 'remember': {
+      const { readFileSync: rf, writeFileSync: wf, mkdirSync } = await import('node:fs')
+      const { join: j } = await import('node:path')
+      mkdirSync(state, { recursive: true })
+      const file = j(state, 'memory.json')
+      let db = { items: [] }
+      try {
+        db = JSON.parse(rf(file, 'utf8').replace(/^\uFEFF/, ''))
+      } catch { }
+      if (!Array.isArray(db.items)) db.items = []
+      db.items.push({ at: new Date().toISOString(), kind: String(args?.kind || '其他'), text: String(args?.text || '').slice(0, 200) })
+      if (db.items.length > 200) db.items = db.items.slice(-200)
+      wf(file, JSON.stringify(db, null, 1), 'utf8')
+      return { ok: true, saved: db.items[db.items.length - 1], total: db.items.length }
+    }
+    case 'recall': {
+      const { readFileSync: rf } = await import('node:fs')
+      const { join: j } = await import('node:path')
+      const days = Number(args?.days) || 7
+      let db = { items: [] }
+      try {
+        db = JSON.parse(rf(j(state, 'memory.json'), 'utf8').replace(/^\uFEFF/, ''))
+      } catch { }
+      const since = Date.now() - days * 86400000
+      const items = (db.items || []).filter((x) => new Date(x.at).getTime() >= since)
+      return { days, count: items.length, items: items.slice(-15) }
     }
     default:
       return { error: '未知工具' }

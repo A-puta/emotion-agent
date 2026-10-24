@@ -104,6 +104,19 @@ const buildSystem = () => {
   const slots = (s.emotion?.slots || []).map((x) => x.label)
   const emo = slots.length ? slots.join(' + ') : '空'
   const emoMode = s.emotionMode?.mode === 'all' ? '全部对话' : '仅日常对话'
+  // 最近记下的五件事，让"记得"真的进到下一轮
+  const memories = (() => {
+    try {
+      const db = JSON.parse(readFileSync(join(STATE, 'memory.json'), 'utf8').replace(/^\uFEFF/, ''))
+      const items = (db.items || []).slice(-5)
+      if (!items.length) return ''
+      return items
+        .map((x) => `- ${String(x.at).slice(5, 16).replace('T', ' ')} [${x.kind}] ${x.text}`)
+        .join('\n')
+    } catch {
+      return ''
+    }
+  })()
   return [
     persona(),
     '',
@@ -117,6 +130,14 @@ const buildSystem = () => {
     'emo 只能填「生气／开心／难过／淘气／委屈／疲惫／害羞」其中之一，没有就留空字符串；它是写进情绪槽的唯一入口。',
     'malice=明显辱骂；resent=越过我不想做的边界；comfort=认错服软或夸我；forceReset=用户要求清零。',
     '示例：你夸我聪明时，正文写害羞的话，最后一行必须是 <!--jieyi {"malice":0,"comfort":1,"completeDialogue":0,"resent":0,"forceReset":0,"testTalk":0,"emo":"害羞"}-->',
+    '',
+    '【工具使用纪律】',
+    '- 需要事实（状态、日志、能不能打开）就调工具，别凭印象说；工具返回 ok=false 或带 error 时，**照实说失败与原因**，不要宣布成功。',
+    '- 一次失败可以换一种办法再试一次（例如换个日志名、换种启动方式），第二次仍失败就停下说清楚。',
+    '- 值得记住的事（约定、夸奖、心情）用 remember 记下；被问到「你还记得吗」先 recall 再回答，没记到就说没记到，不要编。',
+    '',
+    '【已知的记忆】',
+    memories || '（还没有记下任何事）',
   ].join('\n')
 }
 

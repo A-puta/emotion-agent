@@ -25,3 +25,5 @@ status.txt
 app/panel-mode.json
 
 deliver/
+
+state/memory.json
