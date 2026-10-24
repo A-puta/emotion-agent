@@ -588,7 +588,6 @@ const server = createServer(async (req, res) => {
   }
 
   if (p === '/api/anger-set') {
-    if (panelMode() !== 'full') return needFull(res)
     const v = Number(url.searchParams.get('value'))
     if (![-1, 0, 1, 2].includes(v)) return send(res, 400, { error: '只能设 -1 / 0 / 1 / 2' })
     const cmd = `[Console]::OutputEncoding=[Text.Encoding]::UTF8; $p='${join(STATE, 'anger.json')}'; $j = Get-Content $p -Raw -Encoding UTF8 | ConvertFrom-Json; $j.anger = ${v}; $j | ConvertTo-Json -Depth 6 | Set-Content $p -Encoding UTF8; 'ok'`
@@ -642,6 +641,7 @@ server.listen(PORT, '127.0.0.1', () => {
   console.log(cfg.baseUrl && cfg.model && cfg.apiKey ? `模型接口：${cfg.baseUrl} (${cfg.model})` : '模型接口：未配置（面板照常可用）')
   if (!existsSync(CONFIG)) console.log(`提示：把 app/config.example.json 复制成 app/config.json 就能开启对话`)
 })
+
 
 
 
