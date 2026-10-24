@@ -204,6 +204,23 @@ python voice\voice_server.py     # POST /say
 
 情绪相关阈值在 `scripts/emotion.ps1` 顶部（`$HeavyLife`、`$LightLife`、`$SegGap`、`$RecoverSpan`）。
 
+### 接任意 OpenAI 兼容接口（想在这里直接对话）
+
+控制台带一个对话面板，**后端不绑定任何厂商**——只要兼容 `POST {baseUrl}/chat/completions` 就能用。
+
+打开 <http://127.0.0.1:18100>，在「对话」那一栏填三样并保存（存在 `app/config.json`，已被 `.gitignore` 排除）：
+
+| 场景 | baseUrl | model | apiKey |
+|---|---|---|---|
+| DeepSeek | `https://api.deepseek.com` | `deepseek-chat` | 必填 |
+| OpenAI | `https://api.openai.com/v1` | `gpt-4o-mini` | 必填 |
+| 本机 Ollama | `http://127.0.0.1:11434/v1` | `llama3.1` | 留空 |
+| vLLM / LM Studio / 其他 | 你的地址 | 你的模型名 | 看服务要求 |
+
+保存后直接在面板里聊天：回话里的隐藏判定行会被剥掉，情绪与怒气按同一套脚本落账，右边卡片同步变。
+
+**不填也能用**——面板其余部分照常，只是不参与对话。
+
 ---
 
 ## 六、示例

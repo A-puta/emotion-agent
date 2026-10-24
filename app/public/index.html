@@ -83,6 +83,22 @@
   </section>
 
   <section class="card full">
+    <h2>对话 · 接任意 OpenAI 兼容接口（DeepSeek / OpenAI / Ollama / vLLM…）</h2>
+    <div class="row">
+      <input id="cfg-base" placeholder="baseUrl：https://api.deepseek.com 或 http://127.0.0.1:11434/v1" style="flex:2;min-width:260px;background:#23272c;color:#e8e6e3;border:1px solid #2a2f35;border-radius:7px;padding:7px 10px;font:inherit" />
+      <input id="cfg-model" placeholder="model：deepseek-chat / gpt-4o-mini / llama3.1" style="flex:1;min-width:180px;background:#23272c;color:#e8e6e3;border:1px solid #2a2f35;border-radius:7px;padding:7px 10px;font:inherit" />
+      <input id="cfg-key" type="password" placeholder="apiKey（只存本机，不进仓库）" style="flex:1;min-width:180px;background:#23272c;color:#e8e6e3;border:1px solid #2a2f35;border-radius:7px;padding:7px 10px;font:inherit" />
+      <button onclick="saveCfg()">保存</button>
+    </div>
+    <div id="chat-log" style="margin-top:12px;max-height:300px;overflow:auto;display:flex;flex-direction:column;gap:8px"></div>
+    <div class="row">
+      <input id="chat-input" placeholder="说点什么…（回车发送）" style="flex:1;background:#23272c;color:#e8e6e3;border:1px solid #2a2f35;border-radius:7px;padding:9px 12px;font:inherit" />
+      <button onclick="sendChat()">发送</button>
+    </div>
+    <div class="dim" id="chat-hint" style="font-size:12px;margin-top:6px">未配置接口时，只演示状态机，不参与对话。</div>
+  </section>
+
+  <section class="card full">
     <h2>调试</h2>
     <pre id="debug">—</pre>
   </section>
@@ -134,6 +150,70 @@ async function pick(fg) {
   $('pick-out').textContent = r.line || '（没有满足条件的句子）'
 }
 
+// ---------------- 对话 ----------------
+let history = []
+
+function bubble(who, text, cls) {
+  const div = document.createElement('div')
+  div.style.cssText = `align-self:${who === '你' ? 'flex-end' : 'flex-start'};max-width:80%;padding:8px 12px;border-radius:10px;white-space:pre-wrap;` +
+    (who === '你' ? 'background:#2a3138;' : 'background:#1f2630;border:1px solid #2a2f35;')
+  div.textContent = text
+  if (cls) div.className = cls
+  return div
+}
+
+async function loadCfg() {
+  const c = await (await fetch('/api/config')).json()
+  $('cfg-base').value = c.baseUrl || ''
+  $('cfg-model').value = c.model || ''
+  $('cfg-key').placeholder = c.hasKey ? 'apiKey 已保存（留空不改）' : 'apiKey（只存本机，不进仓库）'
+  $('chat-hint').textContent = c.hasKey && c.baseUrl && c.model
+    ? `已接入 ${c.baseUrl}（${c.model}）`
+    : '还没配置接口：填上面三项并保存，就能在这里对话。'
+}
+
+async function saveCfg() {
+  const body = { baseUrl: $('cfg-base').value, model: $('cfg-model').value }
+  const key = $('cfg-key').value
+  if (key) body.apiKey = key
+  await fetch('/api/config', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) })
+  $('cfg-key').value = ''
+  await loadCfg()
+}
+
+async function sendChat() {
+  const input = $('chat-input')
+  const text = input.value.trim()
+  if (!text) return
+  input.value = ''
+  $('chat-log').appendChild(bubble('你', text))
+  history.push({ role: 'user', content: text })
+  const log = $('chat-log')
+  log.scrollTop = log.scrollHeight
+  try {
+    const res = await fetch('/api/chat', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ text, history: history.slice(0, -1) }),
+    })
+    const j = await res.json()
+    if (j.error) {
+      log.appendChild(bubble('它', '（' + j.error + '）'))
+    } else {
+      log.appendChild(bubble('它', j.reply))
+      history.push({ role: 'assistant', content: j.reply })
+      if (j.applied && j.applied.length) $('chat-hint').textContent = '本轮动作：' + j.applied.join('、')
+    }
+  } catch (e) {
+    log.appendChild(bubble('它', '（请求失败：' + e.message + '）'))
+  }
+  log.scrollTop = log.scrollHeight
+  refresh()
+}
+
+$('chat-input').addEventListener('keydown', (e) => { if (e.key === 'Enter') sendChat() })
+
+loadCfg()
 refresh()
 setInterval(refresh, 2000)
 </script>
