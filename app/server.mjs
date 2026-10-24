@@ -102,8 +102,21 @@ const saySomething = async (opts = {}) => {
       } catch { }
     }
   }
-  if (!text) return null
+  if (!text) {
+    // 把哨兵「为什么不发」翻译成人话，附原始最后一行
+    const tail = out.split('\n').map((x) => x.trim()).filter(Boolean).slice(-3)
+    const last = tail[tail.length - 1] || ''
+    let reason = '哨兵这次判定不通过'
+    if (/anger\s*=\s*[12]|anger > 0|angry/i.test(last)) reason = '怒气大于 0：它在生气时不会主动开口'
+    else if (/already sent/i.test(last)) reason = '今天的条数已经用满了'
+    else if (/talked .* min ago|min since last message/i.test(last)) reason = '距离你上一条消息还不够久（未满 1 小时）'
+    else if (/nextEligible/i.test(last)) reason = '还没到下一次可发的时间'
+    else if (/night|hold/i.test(last)) reason = '现在是静默时段（02:00–07:00）'
+    else if (/missing|思念/i.test(last)) reason = '思念等级判定这轮不输出'
+    return { declined: true, reason, log: tail }
+  }
   await commitSentinelSent(text, tag)
+
   const item = { id: ++proactiveSeq, tag, at: new Date().toISOString(), text }
   proactiveQueue.push(item)
   if (proactiveQueue.length > 30) proactiveQueue.shift()
@@ -572,8 +585,9 @@ const server = createServer(async (req, res) => {
   }
 
   if (p === '/api/proactive/now' && req.method === 'POST') {
-    const item = await saySomething({ force: url.searchParams.get('force') === '1' })
-    return send(res, 200, { ok: Boolean(item), item })
+    const r = await saySomething({ force: url.searchParams.get('force') === '1' })
+    if (r && r.declined) return send(res, 200, { ok: false, declined: true, reason: r.reason, log: r.log })
+    return send(res, 200, { ok: Boolean(r), item: r })
   }
 
   if (p === '/api/proactive/pending') {
@@ -641,6 +655,9 @@ server.listen(PORT, '127.0.0.1', () => {
   console.log(cfg.baseUrl && cfg.model && cfg.apiKey ? `模型接口：${cfg.baseUrl} (${cfg.model})` : '模型接口：未配置（面板照常可用）')
   if (!existsSync(CONFIG)) console.log(`提示：把 app/config.example.json 复制成 app/config.json 就能开启对话`)
 })
+
+
+
 
 
 

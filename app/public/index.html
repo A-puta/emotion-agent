@@ -300,7 +300,7 @@ async function proactiveStop() {
   await fetch('/api/proactive/stop', { method: 'POST' })
   $('proactive-hint').textContent = '已停止：只在你说完话后回应'
 }
-async function sentinelForce() { const r = await fetch('/api/proactive/now?force=1', { method: 'POST' }); const j = await r.json(); if (!j.ok) { $('proactive-hint').textContent = '哨兵这次没给话（判定不通过或脚本出错）' } await pullProactive() }
+async function sentinelForce() { const r = await fetch('/api/proactive/now?force=1', { method: 'POST' }); const j = await r.json(); if (!j.ok) { $('proactive-hint').textContent = '哨兵没给话：' + (j.reason || '判定不通过') + (j.log && j.log.length ? '　｜　' + j.log[j.log.length-1] : '') } else { $('proactive-hint').textContent = '刚才那条来自哨兵' } await pullProactive() }
 async function proactiveNow() {
   await fetch('/api/proactive/now?force=1', { method: 'POST' })
   await pullProactive()
@@ -328,6 +328,7 @@ setInterval(refresh, 2000)
 </script>
 </body>
 </html>
+
 
 
 
