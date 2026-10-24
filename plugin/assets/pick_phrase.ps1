@@ -7,6 +7,8 @@
   [switch]$Show
 )
 
+[Console]::OutputEncoding = [System.Text.Encoding]::UTF8
+
 $ErrorActionPreference = 'Stop'
 $root = 'D:\DSH-资料\外部哨兵'
 $libPath = Join-Path $root '日常话语库.json'

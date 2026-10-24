@@ -7,6 +7,8 @@
   [string]$Session = ''
 )
 
+[Console]::OutputEncoding = [System.Text.Encoding]::UTF8
+
 $ErrorActionPreference = 'Stop'
 $StateDir = 'D:\DSH-资料\结衣状态'
 $File = Join-Path $StateDir 'emotion.json'
