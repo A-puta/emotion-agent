@@ -88,7 +88,14 @@ const VERDICT_RE = /<!--jieyi\s+(\{[\s\S]*?\})\s*-->/
 
 const stripVerdict = (text) => {
   const m = text.match(VERDICT_RE)
-  return { text: text.replace(VERDICT_RE, '').trim(), verdict: m ? safeParse(m[1]) : null }
+  let out = text.replace(VERDICT_RE, '')
+  // 模型有时会在判定行前面多写一句「判定行：」，一起抹掉
+  out = out
+    .split('\n')
+    .filter((line) => !/^\s*(判定行|判定|jieyi|verdict)\s*[:：]?\s*$/i.test(line))
+    .join('\n')
+    .trim()
+  return { text: out, verdict: m ? safeParse(m[1]) : null }
 }
 
 const safeParse = (s) => {
@@ -124,6 +131,8 @@ const buildSystem = () => {
     `【当前怒气值】${s.anger?.anger ?? -1}`,
     `【当前思念值】${s.missing?.level ?? 'C'}`,
     `【当前情绪槽】${emo}（适用范围：${emoMode}）`,
+    '情绪槽是**真状态**，不是装饰：里面有标签，这一轮语气就必须体现出来——生气＝话短、冷、不带颜文字；开心＝轻快、多说一句；害羞＝变软、句子断；难过＝低、少；淘气＝斗嘴；委屈＝不服气地解释；疲惫＝只留主干。槽为空才用平常语气。',
+    '**只写真实会说的话**：不要把语气、情绪、规则写成括号说明（「（生气语气）」这类一律不许），也不要提标签、状态、工具名。',
     '',
     '【本轮必须做的事】回复正文写完后，必须在最后单独另起一行，输出一行判定（宿主会抹掉，用户看不到），格式一字不差：',
     '<!--jieyi {"malice":0,"comfort":0,"completeDialogue":0,"resent":0,"forceReset":0,"testTalk":0,"emo":""}-->',
@@ -247,8 +256,25 @@ const server = createServer(async (req, res) => {
       const messages = [
         { role: 'system', content: buildSystem() },
         ...(Array.isArray(body.history) ? body.history.slice(-8) : []),
-        { role: 'user', content: text },
       ]
+      // 情绪放在最靠近用户消息的位置，权重最高
+      const mood = (() => {
+        const st = readState()
+        const labels = (st.emotion?.slots || []).map((x) => x.label)
+        if (!labels.length) return '平常'
+        const map = {
+          生气: '话很短、语气冷、不用颜文字',
+          开心: '轻快、可以多说一句、可带一个颜文字',
+          难过: '声音低、句子少、不玩闹',
+          淘气: '斗嘴、绕个弯说',
+          委屈: '不服气地解释两句',
+          疲惫: '只留主干，短句，不用颜文字',
+          害羞: '变软、句子断、会躲一下',
+        }
+        return labels.map((l) => `${l}（${map[l] || ''}）`).join(' + ')
+      })()
+      messages.push({ role: 'system', content: `【本轮语气】${mood}——按这个说，不要把语气写出来。` })
+      messages.push({ role: 'user', content: text })
       // —— Agent 循环：最多四步，允许模型调白名单工具 ——
       const trace = []
       let raw = ''
