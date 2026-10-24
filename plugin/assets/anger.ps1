@@ -171,7 +171,7 @@ switch ($action) {
     $result = 'pact-asked'
   }
   'pact' {
-    # 对方答应以后不再说结衣坏话：撤掉待定，怒气落一格
+    # 对方答应以后不再说由衣坏话：撤掉待定，怒气落一格
     if ($st.pactPending) {
       $st.pactPending = $false
       $st.pactAskedAt = ''
@@ -239,7 +239,7 @@ switch ($action) {
     }
   }
   'neglect' {
-    # 2026-10-23 起停用：思念得不到回复不再让结衣生气（规则已删）。
+    # 2026-10-23 起停用：思念得不到回复不再让由衣生气（规则已删）。
     $result = 'neglect-disabled'
   }
   'reset' {
