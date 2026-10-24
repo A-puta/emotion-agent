@@ -92,7 +92,7 @@ EnsureField $st 'pactPending' $false
 EnsureField $st 'pactAskedAt' ''
 EnsureField $st 'pactBrokenCount' 0
 EnsureField $st 'lockCount' 0
-EnsureField $st 'maliceArmed' $false
+EnsureField $st 'lastMaliceAt' ''
 if ($null -eq $st.anger) { $st | Add-Member -NotePropertyName anger -NotePropertyValue $minA -Force }
 
 # ---- lock window expiry -> post-lock mode ----
@@ -166,7 +166,13 @@ switch ($action) {
     # 第一次骂 -> 怒气到 1 并挂"等待约定"；
     # 若怒气还没降回 -1 又骂了一次 -> 直接到 2 并第一次锁死。
     $st.maliceCount = [int]$st.maliceCount + 1
-    if ($st.maliceArmed -and -not $st.locked) {
+    # 同「一段对话」内（相邻两条消息间隔 <= 10 分钟）的第二次辱骂，直接锁，
+    # 中间有没有安慰都不影响
+    $sameSegment = $false
+    if ($st.lastMaliceAt) {
+      try { $sameSegment = (($now - [datetime]$st.lastMaliceAt).TotalMinutes -le 10) } catch { $sameSegment = $false }
+    }
+    if ($sameSegment -and -not $st.locked) {
       $st.anger = $maxA
       $st.pactPending = $false
       $st.pactAskedAt = ''
@@ -180,7 +186,7 @@ switch ($action) {
       $result = 'locked-by-repeat-malice'
     } else {
       if ([int]$st.anger -lt 1) { $st.anger = 1 }
-      $st.maliceArmed = $true
+      $st.lastMaliceAt = $now.ToString('s')
       $st.pactPending = $true
       $st.pactAskedAt = $now.ToString('s')
       Push-Cause 'malice'
@@ -226,7 +232,7 @@ switch ($action) {
     elseif ([int]$st.anger -lt $maxA) {
       $st.anger = [Math]::Max($minA, [int]$st.anger - 1)
       # 降回最低之后，"连续骂人"的计数才归零
-      if ([int]$st.anger -le $minA) { $st.maliceArmed = $false }
+
       $result = 'decayed'
     } else { $result = 'at-max' }
   }
@@ -269,7 +275,7 @@ switch ($action) {
     $st.pactPending = $false; $st.pactAskedAt = ''; $st.neglect = $false
     $st.lockCount = 0
     $result = 'reset'
-    $st.maliceArmed = $false  # reset
+    $st.lastMaliceAt = ''
   }
   'unlock' {
     if ($st.locked) { $st.locked = $false; $st.postLockPending = $true; $st.postLockComforts = 0; $result = 'lock-ended' }
