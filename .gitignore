@@ -15,3 +15,8 @@ state/*.json
 !state/anger.json
 voice/models/
 voice/work/
+
+scripts/phrase-usage.json
+scripts/*.log
+hash-report.txt
+status.txt

@@ -15,7 +15,9 @@ const PS = 'powershell.exe'
 
 const readJson = (p) => {
   try {
-    return JSON.parse(readFileSync(p, 'utf8'))
+    // PowerShell 写的 UTF-8 带 BOM，JSON.parse 会直接报错，这里先削掉
+    const txt = readFileSync(p, 'utf8').replace(/^\uFEFF/, '')
+    return JSON.parse(txt)
   } catch {
     return null
   }
