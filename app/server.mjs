@@ -440,6 +440,14 @@ const server = createServer(async (req, res) => {
       // 恶意词做一次确定性兜底，不依赖模型自己申报
       const MALICE_WORDS = ['傻子', '傻逼', '白痴', '蠢货', '智障', '废物', '笨蛋东西']
       if (MALICE_WORDS.some((w) => text.includes(w))) v.malice = 1
+      // 你回话了，就是"已产生对话"：思念 A 必须降回 C，否则会一直挂在 A
+      try {
+        const lv = readJson(join(STATE, 'missing.json'))?.level
+        if (lv && lv !== 'C') {
+          await runPs('missing.ps1', ['-Reset'])
+          v._missingReset = true
+        }
+      } catch { }
       const applied = await applyVerdict(v)
       return send(res, 200, { reply, applied, trace })
     } catch (e) {
@@ -655,6 +663,7 @@ server.listen(PORT, '127.0.0.1', () => {
   console.log(cfg.baseUrl && cfg.model && cfg.apiKey ? `模型接口：${cfg.baseUrl} (${cfg.model})` : '模型接口：未配置（面板照常可用）')
   if (!existsSync(CONFIG)) console.log(`提示：把 app/config.example.json 复制成 app/config.json 就能开启对话`)
 })
+
 
 
 
