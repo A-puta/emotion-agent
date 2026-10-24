@@ -38,6 +38,13 @@
     <div class="big" id="slots">—</div>
     <div class="chips" id="slot-chips"></div>
     <pre id="emotion-raw"></pre>
+    <div class="row">
+      <button onclick="setEmo('害羞')">+害羞</button>
+      <button onclick="setEmo('开心')">+开心</button>
+      <button onclick="setEmo('淘气')">+淘气</button>
+      <button onclick="setEmo('生气')">+生气</button>
+      <button onclick="clearEmo()">清空</button>
+    </div>
   </section>
 
   <section class="card">
@@ -144,6 +151,8 @@ async function refresh() {
 async function setEmode(mode) { await fetch('/api/emotion-mode?mode=' + mode); refresh() }
 async function setSmode(mode) { await fetch('/api/sentinel-mode?mode=' + mode); refresh() }
 async function resetAnger() { await fetch('/api/anger-reset'); refresh() }
+async function setEmo(label) { await fetch('/api/emotion-set?label=' + encodeURIComponent(label)); refresh() }
+async function clearEmo() { await fetch('/api/emotion-clear'); refresh() }
 async function pick(fg) {
   $('pick-out').textContent = '挑选中…'
   const r = await (await fetch('/api/pick?fg=' + encodeURIComponent(fg))).json()

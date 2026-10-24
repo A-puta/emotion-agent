@@ -9,7 +9,7 @@ import { spawn } from 'node:child_process'
 const __dirname = dirname(fileURLToPath(import.meta.url))
 const ROOT = dirname(__dirname)
 const SCRIPTS = process.env.JIEYI_SCRIPTS || join(ROOT, 'scripts')
-const STATE = process.env.JIEYI_STATE || join(ROOT, 'state')
+const STATE = process.env.JIEYI_STATE || (existsSync('D:\\DSH-资料\\结衣状态') ? 'D:\\DSH-资料\\结衣状态' : join(ROOT, 'state'))
 const CONFIG = process.env.JIEYI_CONFIG || join(ROOT, 'app', 'config.json')
 const PORT = Number(process.env.PORT || 18100)
 const PS = 'powershell.exe'
@@ -88,16 +88,18 @@ const buildSystem = () => {
   const emo = slots.length ? slots.join(' + ') : '空'
   const emoMode = s.emotionMode?.mode === 'all' ? '全部对话' : '仅日常对话'
   return [
+    persona(),
+    '',
     '【结衣状态 · 宿主注入】以下是本会话的确定状态，直接当事实使用，不要另行推算：',
     `【当前怒气值】${s.anger?.anger ?? -1}`,
     `【当前思念值】${s.missing?.level ?? 'C'}`,
     `【当前情绪槽】${emo}（适用范围：${emoMode}）`,
-    '读完本轮用户消息后，另起一行输出判定行（宿主会抹掉，用户看不到）：',
-    '<!--jieyi {"malice":0,"comfort":0,"completeDialogue":0,"resent":0,"forceReset":0,"testTalk":0,"emo":""}-->',
-    'emo=这一轮冒出的情绪，只能填「生气／开心／难过／淘气／委屈／疲惫／害羞」其中之一，没有就留空字符串；它是写进情绪槽的唯一入口，别在正文里提这件事。',
-    'malice=明显辱骂；resent=越过我不想做的边界；comfort=认错服软或夸我；forceReset=用户要求清零。',
     '',
-    persona(),
+    '【本轮必须做的事】回复正文写完后，必须在最后单独另起一行，输出一行判定（宿主会抹掉，用户看不到），格式一字不差：',
+    '<!--jieyi {"malice":0,"comfort":0,"completeDialogue":0,"resent":0,"forceReset":0,"testTalk":0,"emo":""}-->',
+    'emo 只能填「生气／开心／难过／淘气／委屈／疲惫／害羞」其中之一，没有就留空字符串；它是写进情绪槽的唯一入口。',
+    'malice=明显辱骂；resent=越过我不想做的边界；comfort=认错服软或夸我；forceReset=用户要求清零。',
+    '示例：你夸我聪明时，正文写害羞的话，最后一行必须是 <!--jieyi {"malice":0,"comfort":1,"completeDialogue":0,"resent":0,"forceReset":0,"testTalk":0,"emo":"害羞"}-->',
   ].join('\n')
 }
 
@@ -240,6 +242,29 @@ const server = createServer(async (req, res) => {
     return send(res, 200, { ok: true, out: await runPs('emotion.ps1', ['-Show']) })
   }
 
+  if (p === '/api/emotion-set') {
+    const label = String(url.searchParams.get('label') || '').trim()
+    const labels = ['生气', '开心', '难过', '淘气', '委屈', '疲惫', '害羞']
+    if (!labels.includes(label)) return send(res, 400, { error: '标签不认识' })
+    return send(res, 200, { ok: true, out: await runPs('emotion.ps1', ['-Set', label, '-Session', SESSION]) })
+  }
+
+  if (p === '/api/emotion-clear') {
+    return send(res, 200, { ok: true, out: await runPs('emotion.ps1', ['-Reset']) })
+  }
+
+  if (p === '/api/tasks') {
+    const ps = "[Console]::OutputEncoding=[Text.Encoding]::UTF8; Get-ScheduledTask -TaskName '外部哨兵脚本','结衣情绪到期' -ErrorAction SilentlyContinue | ForEach-Object { $_.TaskName + ' · ' + $_.State }"
+    const out = await new Promise((resolve) => {
+      const child = spawn(PS, ['-NoProfile', '-Command', ps], { windowsHide: true })
+      let s = ''
+      child.stdout.on('data', (d) => (s += d.toString()))
+      child.on('close', () => resolve(s.trim()))
+      child.on('error', () => resolve(''))
+    })
+    return send(res, 200, { ok: true, out })
+  }
+
   return send(res, 404, { error: 'not found' })
 })
 
@@ -251,3 +276,4 @@ server.listen(PORT, '127.0.0.1', () => {
   console.log(cfg.baseUrl && cfg.model && cfg.apiKey ? `模型接口：${cfg.baseUrl} (${cfg.model})` : '模型接口：未配置（面板照常可用）')
   if (!existsSync(CONFIG)) console.log(`提示：把 app/config.example.json 复制成 app/config.json 就能开启对话`)
 })
+
