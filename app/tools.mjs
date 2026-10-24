@@ -275,8 +275,18 @@ export async function runTool(name, args, { scripts, state, mode, root }) {
       const raw = String(args?.path || '').trim()
       if (!raw) return { error: '要给个文件路径' }
       const { existsSync, statSync, mkdirSync, copyFileSync } = await import('node:fs')
-      const { basename, resolve, join: j } = await import('node:path')
+      const { basename, resolve, join: j, sep } = await import('node:path')
+      const { homedir } = await import('node:os')
       const p = resolve(raw)
+      // 只允许交付这几个目录下的文件，避免被当成任意文件读取器
+      const allowedRoots = [
+        resolve(root || '.'),
+        resolve(state),
+        resolve(join(homedir(), 'Desktop', 'DSH传输')),
+        resolve(join(homedir(), 'Desktop')),
+      ]
+      const inside = allowedRoots.some((base) => p === base || p.startsWith(base.endsWith(sep) ? base : base + sep))
+      if (!inside) return { error: `这个路径不在允许交付的目录里：${p}` }
       if (!existsSync(p) || !statSync(p).isFile()) return { error: `找不到文件：${p}` }
       const deliver = j(root || '.', 'deliver')
       mkdirSync(deliver, { recursive: true })
