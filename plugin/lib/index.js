@@ -1,5 +1,5 @@
 ﻿/**
- * dsh-jieyi-persona — 由衣人格与情感状态插件（宿主侧）
+ * dsh-jieyi-persona — 结衣人格与情感状态插件（宿主侧）
  *
  * 契约依据（从宿主实现里 1:1 抠出，未凭推测）：
  *  - 取服务必须声明 inject：`ctx.inject(['sessionProjections'], (scope) => …)`
@@ -536,7 +536,7 @@ export function renderInjection({ anger, peak, missing, external = null }) {
   else if (live?.postLockPending) {
     mark = Number(live?.postLockComforts ?? 0) >= 1
       ? '（锁死刚过、上一句安慰已经听过：这一句开始降怒气）'
-      : '（锁死刚过：这一句安慰不降怒气，仍要用生气的语气，句尾带上「除非你先跟由衣约定，以后不再做」这层意思）'
+      : '（锁死刚过：这一句安慰不降怒气，仍要用生气的语气，句尾带上「除非你先跟结衣约定，以后不再做」这层意思）'
   }
   const angerText = `${live?.anger ?? DEFAULT_CONFIG.angerInit}${mark}`
   const missingText = `${extMissing?.level ?? missing?.level ?? 'C'}${extMissing?.neglect ? '（已停发思念，等回应）' : ''}`
@@ -570,7 +570,7 @@ export function renderInjection({ anger, peak, missing, external = null }) {
     }
   })()
   return [
-    '【由衣状态 · 宿主注入】以下是本会话的确定状态，直接当事实使用，不要另行推算：',
+    '【结衣状态 · 宿主注入】以下是本会话的确定状态，直接当事实使用，不要另行推算：',
     `【当前怒气值】${angerText}`,
     `【当前思念值】${missingText}`,
     `【当前情绪槽】${emotionText}${Number(extEmotion?.fatigue) === 1 ? '（疲惫一格：句子裁短，与另一格杂糅）' : ''}（适用范围：${emotionMode}）`,
@@ -578,7 +578,7 @@ export function renderInjection({ anger, peak, missing, external = null }) {
     '口径：C 级**不输出**思念语句，只在上一条发的是日常话语（淘气/关心/好奇）且没被回应时才可能升到 B；B 级每次约六成说思念；A 级每小时一条。',
     '读完本轮用户消息后，另起一行输出判定行（宿主会抹掉，用户看不到）：',
     `${VERDICT_OPEN}{"malice":0,"comfort":0,"completeDialogue":0,"resent":0,"forceReset":0,"testTalk":0,"emo":""}${VERDICT_CLOSE}`,
-    '口径：malice=明显恶意辱骂或轻蔑（「小笨蛋」「小傻瓜」这类捉弄不算）；resent=用户的要求越过了由衣不做的边界（第一次也要报，同一轮最多记一次）；comfort=认错、服软、不再逼迫、给台阶、夸由衣；completeDialogue=上次发送之后已形成过完整来回；forceReset=用户说了「怒气值强制清零」或「强制降低」；testTalk=这轮是测试（带 <测试>／《测试》标记，或用户说明属于测试）。',
+    '口径：malice=明显恶意辱骂或轻蔑（「小笨蛋」「小傻瓜」这类捉弄不算）；resent=用户的要求越过了结衣不做的边界（第一次也要报，同一轮最多记一次）；comfort=认错、服软、不再逼迫、给台阶、夸结衣；completeDialogue=上次发送之后已形成过完整来回；forceReset=用户说了「怒气值强制清零」或「强制降低」；testTalk=这轮是测试（带 <测试>／《测试》标记，或用户说明属于测试）。',
     'emo=这一轮冒出的情绪，只能填「生气／开心／难过／淘气／委屈／疲惫／害羞」其中之一，没有就留空字符串。它是写进情绪槽的唯一入口，别在正文里提这件事。',
   ].join('\n') + personaText
 }
@@ -603,7 +603,7 @@ export const OUTBOUND_TOOL_DENY = new Set([
 
 export const denyOutbound = (exec) => {
   const n = String(exec?.name ?? '')
-  return OUTBOUND_TOOL_DENY.has(n) ? '由衣不代替用户对外发送消息（宿主硬边界）' : undefined
+  return OUTBOUND_TOOL_DENY.has(n) ? '结衣不代替用户对外发送消息（宿主硬边界）' : undefined
 }
 
 // -------------------------------------------------------------------- 插件

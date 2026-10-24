@@ -1,4 +1,4 @@
-﻿// 由衣控制台 · 零依赖本地服务
+﻿// 结衣控制台 · 零依赖本地服务
 // 读状态文件 + 调已有脚本 + 可选接任意 OpenAI 兼容接口
 import { createServer } from 'node:http'
 import { readFileSync, copyFileSync, writeFileSync, existsSync } from 'node:fs'
@@ -230,7 +230,7 @@ const buildSystem = () => {
   return [
     persona(),
     '',
-    '【由衣状态 · 宿主注入】以下是本会话的确定状态，直接当事实使用，不要另行推算：',
+    '【结衣状态 · 宿主注入】以下是本会话的确定状态，直接当事实使用，不要另行推算：',
     `【当前怒气值】${s.anger?.anger ?? -1}`,
     `【当前思念值】${s.missing?.level ?? 'C'}`,
     `【当前情绪槽】${emo}（适用范围：${emoMode}）`,
@@ -655,7 +655,7 @@ const server = createServer(async (req, res) => {
 })
 
 server.listen(PORT, '127.0.0.1', () => {
-  console.log(`由衣控制台：http://127.0.0.1:${PORT}`)
+  console.log(`结衣控制台：http://127.0.0.1:${PORT}`)
   console.log(`脚本目录：${SCRIPTS}`)
   console.log(`状态目录：${STATE}`)
   const cfg = loadConfig()

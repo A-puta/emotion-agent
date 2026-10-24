@@ -6,7 +6,7 @@
     -Show                     只读打印当前状态
     -Decide                   由哨兵调用一次"投掷/判定"，输出 action=send|skip 与 level（JSON）
     -MarkSent  -Tag <标签>     哨兵真正发出后回报；记录 lastSentAt / lastTag
-    -Reset                    等级降回 C（由衣判定"已产生完整对话"时用）
+    -Reset                    等级降回 C（结衣判定"已产生完整对话"时用）
     -StatePath <路径>          覆盖状态文件路径（默认 结衣状态\missing.json）
     -SessionsRoot <路径>       覆盖会话目录（默认 ~\.dsh\sessions）
 
@@ -100,7 +100,7 @@ try {
 $curSess = if ($imDir) { $imDir.Name } else { 'unknown' }
 
 # ---- 沉默时长：从用户最后一句话算起（用户指定 2026-10-18）----
-# 只看 QQ/IM 会话里"真人发来的消息"，不像旧判据那样把由衣自己的回复也算成用户说话。
+# 只看 QQ/IM 会话里"真人发来的消息"，不像旧判据那样把结衣自己的回复也算成用户说话。
 $lastUserMs = 0
 try {
   $luOut = & (Join-Path $root 'last-user-msg.ps1') 2>$null | Out-String
