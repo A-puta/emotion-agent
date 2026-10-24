@@ -162,6 +162,11 @@ const applyVerdict = async (v) => {
     await run('anger.ps1', ['-Reset'], 'anger-reset')
     return done
   }
+  // 测试轮：整轮不碰怒气，也不算「没上升的一轮」
+  if (v.testTalk) {
+    await run('anger.ps1', ['-TestTalk'], 'test-talk')
+    return done
+  }
   await run('emotion.ps1', ['-Tick', '-Session', SESSION], 'tick')
   let provoked = false
   if (v.resent && v.malice) {
@@ -181,11 +186,15 @@ const applyVerdict = async (v) => {
     if (Number.isFinite(cur) && cur < 2) await run('anger.ps1', ['-Tick'], 'anger-tick')
     provoked = true
   }
+  // 完整来回：上一次发送之后已经聊过，思念回 C
+  if (v.completeDialogue) await run('missing.ps1', ['-Reset'], 'complete-dialogue')
   // 这一轮没被激怒 → 怒气按约定衰减一格（最低 -1）
-  if (!provoked && !v.testTalk) await run('anger.ps1', ['-Tick'], 'anger-tick')
+  if (!provoked) await run('anger.ps1', ['-Tick'], 'anger-tick')
   const labels = ['生气', '开心', '难过', '淘气', '委屈', '疲惫', '害羞']
-  if (labels.includes(String(v.emo || '').trim())) {
-    await run('emotion.ps1', ['-Set', String(v.emo).trim(), '-Session', SESSION], `emo:${v.emo}`)
+  // 生气槽分工：怒气已经涨了就不再进槽，只有被轻轻怼才占一格
+  const emo = String(v.emo || '').trim()
+  if (labels.includes(emo) && !(emo === '生气' && provoked)) {
+    await run('emotion.ps1', ['-Set', emo, '-Session', SESSION], `emo:${emo}`)
   }
   return done
 }
