@@ -20,6 +20,10 @@ const PANEL_MODE_FILE = join(ROOT, 'app', 'panel-mode.json')
 const panelMode = () => (readJson(PANEL_MODE_FILE)?.mode === 'full' ? 'full' : 'partial')
 const setPanelMode = (mode) => writeFileSync(PANEL_MODE_FILE, JSON.stringify({ mode: mode === 'full' ? 'full' : 'partial' }, null, 2), 'utf8')
 
+// 应用内定时器：可选，默认关闭；开了就每 N 分钟真发一条
+let timer = null
+let lastTimerRun = '未启动'
+
 const readJson = (p) => {
   try {
     // PowerShell 写的 UTF-8 带 BOM，JSON.parse 会直接报错，这里先削掉
@@ -393,7 +397,7 @@ const server = createServer(async (req, res) => {
       child.on('close', () => resolve(s.trim()))
       child.on('error', () => resolve(''))
     })
-    return send(res, 200, { ok: true, out })
+    return send(res, 200, { ok: true, out, timerOn: Boolean(timer), lastTimerRun })
   }
 
   if (p === '/api/panel-mode') {
@@ -430,6 +434,38 @@ const server = createServer(async (req, res) => {
     const args = dry ? ['-DryRun', '-Force'] : ['-Force']
     const out = await runPs('外部哨兵脚本.ps1', args)
     return send(res, 200, { ok: true, dry, out: out.slice(-1500) })
+  }
+
+  if (p === '/api/missing-set') {
+    if (panelMode() !== 'full') return needFull(res)
+    const level = String(url.searchParams.get('level') || '').toUpperCase()
+    if (!['C', 'B', 'A'].includes(level)) return send(res, 400, { error: '等级只能是 C / B / A' })
+    const file = join(STATE, 'missing.json')
+    const cur = readJson(file) || {}
+    writeFileSync(file, JSON.stringify({ ...cur, level }, null, 2), 'utf8')
+    return send(res, 200, { ok: true, level })
+  }
+
+  if (p === '/api/sentinel-timer') {
+    if (panelMode() !== 'full') return needFull(res)
+    const on = url.searchParams.get('on') === '1'
+    const minutes = Math.max(5, Number(url.searchParams.get('minutes')) || 20)
+    if (timer) {
+      clearInterval(timer)
+      timer = null
+    }
+    if (on) {
+      timer = setInterval(async () => {
+        try {
+          await runPs('外部哨兵脚本.ps1', ['-Force'])
+          lastTimerRun = new Date().toISOString()
+        } catch (e) {
+          lastTimerRun = 'ERR ' + e.message
+        }
+      }, minutes * 60 * 1000)
+      lastTimerRun = '启动于 ' + new Date().toLocaleTimeString('zh-CN')
+    }
+    return send(res, 200, { ok: true, on, minutes, lastTimerRun })
   }
 
   if (p === '/api/anger-set') {
