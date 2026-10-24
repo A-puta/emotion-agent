@@ -1,4 +1,4 @@
-# 结衣 · 有情绪、会记事、能动手的对话代理
+﻿# 结衣 · 有情绪、会记事、能动手的对话代理
 
 一个跑在自己电脑上的「人格化对话代理」。
 
@@ -94,11 +94,6 @@
 - **失败纪律**：工具失败照实说、允许换一种办法重试一次，第二次仍失败就停。
 - **权限**：会碰系统的工具只对「完全权限」开放；权限不足时调用被直接拒绝并告诉模型。
 
-### 7. 克隆音色说话（可选）
-
-本地零样本语音克隆，任意 10–20 秒参考录音即可；带句间停顿、换气、柔和 EQ、响度归一。
-没有显卡时整个项目退化为纯文本，功能完整。
-
 ---
 
 ## 三、架构
@@ -139,7 +134,7 @@
 | 系统 | Windows 10 / 11 | 是 |
 | PowerShell | 5.1（系统自带） | 是 |
 | Node.js | ≥ 22 | 是 |
-| Python + NVIDIA 显卡 | 3.10+，显存 ≥ 6 GB | 否（只影响语音） |
+
 
 ### 1. 拿到代码
 
@@ -207,18 +202,6 @@ Register-ScheduledTask -TaskName '外部哨兵脚本' -Action $a -Trigger $t -Fo
 把 `plugin/` 放进 DSH 的 `profiles/<profile>/node_modules/dsh-jieyi-persona/`，重启 DSH。
 首次启动会自动补齐缺失的脚本、状态模板与定时任务（`ensureAssets`）。
 
-### 7. 接语音（可选）
-
-```powershell
-python -m venv venv
-venv\Scripts\activate
-pip install torch torchaudio --index-url https://download.pytorch.org/whl/cu128
-pip install f5-tts soundfile numpy
-$env:HF_HOME='D:\models'; $env:NUMBA_DISABLE_JIT='1'
-python voice\voice_server.py     # POST /say
-```
-
-细节见 [`voice/README.md`](voice/README.md)。
 
 ---
 
@@ -314,7 +297,6 @@ app/            控制台：server.mjs（零依赖 HTTP）+ public/index.html + 
 plugin/         DSH 插件：读状态、注入、转发判定、自动补脚本
   assets/       随插件分发的脚本、状态模板、话语库、persona.md、颜文字库
 scripts/        情绪槽 / 怒气 / 思念 / 哨兵 / 话语库挑选器 / 自检 / 状态模板
-voice/          本地零样本语音克隆（可选）
 docs/           约定总表、话语库、条件说明、场景与边界、演示脚本
 ```
 
@@ -330,7 +312,6 @@ docs/           约定总表、话语库、条件说明、场景与边界、演�
 
 **不想花钱？** 保持 `/sentinel-mode library`，主动搭话永远不调模型；只有你主动聊天才产生费用。
 
-**没有显卡能跑吗？** 能。跳过 `voice/`，其余功能完整。
 
 **话语库会不会重复？** 会。它是模板库，同一类每天最多 2 条、最近 12 条不重复；要「每次不同」得切到模型模式。
 
@@ -341,7 +322,6 @@ docs/           约定总表、话语库、条件说明、场景与边界、演�
 - 情绪只改说话方式，**不改事实陈述、能力边界与安全约束**；安全与紧急求助永远正常回答。
 - 控制台**不向任何外部通道发送消息**；只读本地状态、只写自己的交付目录。
 - 主动搭话只使用「时间／星期、沉默时长、写死的城市与天气、前台程序分类（game/work/other）」。
-- 语音克隆**只做本人或已获授权的声音**。
 - 删除状态目录即回到初始状态。
 
 ---
@@ -349,3 +329,4 @@ docs/           约定总表、话语库、条件说明、场景与边界、演�
 ## 十一、许可
 
 MIT，见 [LICENSE](LICENSE)。人格设定与话语库内容属于本项目作者，可自行改写。
+
