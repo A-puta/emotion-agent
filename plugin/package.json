@@ -3,7 +3,7 @@
     "version":  "0.1.0",
     "private":  true,
     "type":  "module",
-    "description":  "增添了多种性格的个性插件，让语段中杂糅情感",
+    "description":  "人格化对话代理：有状态的情绪槽、怒气、思念与疲惫，含本地话语库与可选语音克隆",
     "main":  "lib/index.js",
     "exports":  {
                     ".":  "./lib/index.js",
