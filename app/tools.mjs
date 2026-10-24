@@ -89,7 +89,7 @@ export const TOOL_SPECS = [
       description: '试跑一次主动搭话的判定，默认不真的发送',
       parameters: {
         type: 'object',
-        properties: { for_real: { type: 'boolean', description: 'true 时才真的发出去' } },
+        properties: { for_real: { type: 'boolean', description: '仅为兼容保留；控制台一律只做试跑' } },
         required: [],
       },
     },
@@ -223,9 +223,8 @@ export async function runTool(name, args, { scripts, state, mode, root }) {
       return { line: await runPsFile(scripts, 'pick_phrase.ps1', a) }
     }
     case 'run_sentinel': {
-      const real = args?.for_real === true
-      const out = await runPsFile(scripts, '外部哨兵脚本.ps1', real ? ['-Force'] : ['-DryRun', '-Force'])
-      return { real, out: out.slice(-800) }
+      const out = await runPsFile(scripts, '外部哨兵脚本.ps1', ['-DryRun', '-Force'])
+      return { real: false, out: out.slice(-800) }
     }
     case 'open_app': {
       const key = String(args?.app || '').toLowerCase()
@@ -326,5 +325,6 @@ export async function runTool(name, args, { scripts, state, mode, root }) {
       return { error: '未知工具' }
   }
 }
+
 
 

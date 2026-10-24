@@ -1,4 +1,4 @@
-// 结衣控制台 · 零依赖本地服务
+﻿// 结衣控制台 · 零依赖本地服务
 // 读状态文件 + 调已有脚本 + 可选接任意 OpenAI 兼容接口
 import { createServer } from 'node:http'
 import { readFileSync, copyFileSync, writeFileSync, existsSync } from 'node:fs'
@@ -516,8 +516,8 @@ const server = createServer(async (req, res) => {
 
   if (p === '/api/sentinel-run') {
     if (panelMode() !== 'full') return needFull(res)
-    const dry = url.searchParams.get('real') !== '1'
-    const args = dry ? ['-DryRun', '-Force'] : ['-Force']
+    const dry = true // 控制台只做试跑，不再真实发送
+    const args = ['-DryRun', '-Force']
     const out = await runPs('外部哨兵脚本.ps1', args)
     return send(res, 200, { ok: true, dry, out: out.slice(-1500) })
   }
@@ -642,6 +642,7 @@ server.listen(PORT, '127.0.0.1', () => {
   console.log(cfg.baseUrl && cfg.model && cfg.apiKey ? `模型接口：${cfg.baseUrl} (${cfg.model})` : '模型接口：未配置（面板照常可用）')
   if (!existsSync(CONFIG)) console.log(`提示：把 app/config.example.json 复制成 app/config.json 就能开启对话`)
 })
+
 
 
 
